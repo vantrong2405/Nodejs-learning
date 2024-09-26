@@ -1,16 +1,11 @@
 // Import Express module
 import express from 'express';
-import userRouter from './use.router';
+import userRouter from './routes/users.router';
 const app = express();
 
 const port = 3000;
-
-app.get('/', (req, res) => {
-  res.send('Hello World from Express with ES Module!');
-});
-
-
-app.use('/user',userRouter)
+app.use(express.json());// convert json -> data
+app.use('/users',userRouter)
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
