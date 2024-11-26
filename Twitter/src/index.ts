@@ -6,10 +6,10 @@ databaseService.connect()
 const app = express();
 const port = 4000;
 app.use(express.json());// convert json -> data
-app.use('/users',userRouter)
+app.use('/users', userRouter)
 
 // default error handler
-app.use(defaultErrorHandler) 
+app.use(defaultErrorHandler)
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);

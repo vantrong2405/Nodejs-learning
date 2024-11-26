@@ -1,30 +1,35 @@
-import { NextFunction, Request , Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { RegisterReqBody } from "~/models/requests/User.requests";
 import userService from "~/services/users.services";
-import {ParamsDictionary} from 'express-serve-static-core'
-export const loginController = (req : Request , res : Response) =>{
-  const {email , password} = req.body
-  if(email === 'doanvvantrong@gmail.com' && password === '123456'){
-    res.json({
-      message : 'Login successful'
-     })
-  }else{
-    res.status(400).json({
-      message : 'Loggin failed'
-    });
-  }
+import { ParamsDictionary } from 'express-serve-static-core'
+import { ObjectId } from "mongodb";
+import User from "~/models/schemas/User.schema";
+import { USERS_MESSAGES } from "~/constants/message";
+export const loginController = async (req: Request, res: Response) => {
+  const user = req.user as User
+  const user_id = user._id as ObjectId
+  const result = await userService.login(user_id.toString())
+  res.json({
+    message: USERS_MESSAGES.LOGIN_SUCCESS,
+    result
+  });
 }
 
-export const registerController = async (req : Request<ParamsDictionary, any, RegisterReqBody> , res : Response , next : NextFunction) =>{
-  // nếu có async thì Lỗi này sẽ được Promise quản lý và chuyển vào .catch(next)
-  // nếu bỏ async đi thì Lỗi này không được bắt bởi Promise, dẫn đến việc crash ứng dụng
-  // throw new Error('Loi roi') 
-   const result = await userService.register(req.body)
-    res.json({
-      message : 'Register successful',
-      result
-    });
+export const registerController = async (req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response, next: NextFunction) => {
+  const result = await userService.register(req.body)
+  res.json({
+    message: USERS_MESSAGES.REGISTER_SUCCESS,
+    result
+  });
+}
+
+export const logoutController = async (req: Request, res: Response) => {
+  const { refresh_token } = req.body
+  const result = await userService.logout(refresh_token)
+  res.json({
+    message: USERS_MESSAGES.LOGOUT_SUCCESS,
+    result
+  })
 }
 
 
-  
