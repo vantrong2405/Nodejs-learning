@@ -24,7 +24,7 @@ export default class User {
   _id?: ObjectId
   name: string
   email: string
-  date_of_birth: Date
+  date_of_birth: Date 
   password: string
   created_at: Date
   updated_at: Date

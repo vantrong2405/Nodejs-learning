@@ -13,7 +13,7 @@ class UserService {
         token_type: TokenType.AccessToken
       },
       options:{
-        expiresIn : process.env.ACCESS_TOKEN_EXPIRES_IN
+        expiresIn : process.env.ACCESS_TOKEN_EXPIRES_IN     
       }
     })
   }
@@ -37,7 +37,7 @@ class UserService {
       })
     )
     // console.log('result : ',result); // trả về object gồm id và acknowledged  
-    const user_id = result.insertedId.toString() // id user
+    const user_id = result.insertedId.toString() // id user   
     const [access_token , refresh_token] = await Promise.all([ // ko phụ thuộc vào name lấy
       this.signAccessToken(user_id),
       this.signRefreshToken(user_id)
@@ -46,16 +46,16 @@ class UserService {
     console.log('access_token : ',access_token);
     console.log('refresh_token : ',refresh_token);
     return {
-      access_token,// trả về cả trường vẫn value là access_token và refresh_token
+      access_token,// trả về cả trường vẫn value là access_token và refresh_token 
       refresh_token,
     }
-  }
+  } 
 
-  async checkEmailExist(email : string){
+  async checkEmailExist(email : string){  
     const user = await databaseService.users.findOne({email})
-    return Boolean(user)
+    return Boolean(user)            
   }
 }
 
-const userService = new UserService();
+const userService = new UserService();  // tạo ra 1 instance của UserService        
 export default userService
