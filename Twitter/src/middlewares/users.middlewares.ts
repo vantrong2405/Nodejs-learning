@@ -270,8 +270,6 @@ export const verifyForgotPasswordTokenValidator = validate(checkSchema({
             secretOnPublicKey: process.env.JWT_SECRET_FORGOT_TOKEN_TOKEN as string,
           })
 
-          console.log('decoded_forgot_password_token:', decoded_forgot_password_token);
-
           const { user_id } = decoded_forgot_password_token
           const user = await databaseService.users.findOne({
             _id: new ObjectId(user_id)
@@ -301,3 +299,105 @@ export const verifyForgotPasswordTokenValidator = validate(checkSchema({
     }
   }
 }, ['body']))
+
+export const resetPasswordValidor = validate(
+  checkSchema({
+    forgot_password_token: {
+      trim: true,
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED
+      },
+      custom: {
+        options: async (value, { req }) => {
+          try {
+            const decoded_forgot_password_token = await verifyToken({
+              token: value,
+              secretOnPublicKey: process.env.JWT_SECRET_FORGOT_TOKEN_TOKEN as string,
+            })
+
+            const { user_id } = decoded_forgot_password_token
+            const user = await databaseService.users.findOne({
+              _id: new ObjectId(user_id)
+            })
+            if (!user) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.USER_NOT_FOUND,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            if (user.forgot_password_token !== value) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_INVALID,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            req.decoded_forgot_password_token = user
+          } catch (error) {
+            if (error instanceof JsonWebTokenError) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_INVALID
+                , status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            throw error
+          }
+        }
+      }
+    },
+    password: {
+      isString: {
+        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
+      },
+      isLength: {
+        options: {
+          min: 6,
+          max: 50
+        },
+        errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
+      },
+      isStrongPassword: {
+        options: {
+          minLength: 6,
+          minLowercase: 1,
+          minUppercase: 1,
+          minNumbers: 1,
+          minSymbols: 1 // ký tự đặc biệt
+        },
+        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
+      }
+    },
+    confirm_password: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
+      },
+      isString: {
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_A_STRING
+      },
+      isLength: {
+        options: {
+          min: 6,
+          max: 50
+        },
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
+      },
+      isStrongPassword: {
+        options: {
+          minLength: 6,
+          minLowercase: 1,
+          minUppercase: 1,
+          minNumbers: 1,
+          minSymbols: 1
+        },
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRONG
+      },
+      custom: {
+        options: (value, { req }) => {
+          if (value !== req.body.password) {
+            throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_EQUAL_TO_PASSWORD)
+          }
+          return true
+        }
+      }
+    },
+  }, ['body'])
+)

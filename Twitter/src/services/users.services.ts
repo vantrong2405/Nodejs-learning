@@ -56,7 +56,7 @@ class UserService {
 
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken(user_id.toString())
     await databaseService.refreshTokens.insertOne(new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token }))
-    console.log('email' + email_verify_token)
+
     return {
       access_token,// trả về cả trường vẫn value là access_token và refresh_token 
       refresh_token,
@@ -111,9 +111,7 @@ class UserService {
   }
 
   async resendVerifyEmail(user_id: string) {
-    console.log('Resend email');
     const email_verify_token = await this.signEmailVerifyToken(user_id)
-    console.log('Resend email', email_verify_token);
     databaseService.users.updateOne(
       {
         _id: new ObjectId(user_id)
@@ -171,13 +169,39 @@ class UserService {
       }
     })
     //check email forgot
-    console.log('forgotpassword : ', forgot_password_token);
     return {
       message: USERS_MESSAGES.CHECK_EMAIL_FORGOT,
       forgot_password_token
     }
   }
+
+  async resetPassword(user_id: string, password: string) {
+    databaseService.users.updateOne({
+      _id: new ObjectId(user_id)
+    }, {
+      $set: {
+        password: hashPassword(password),
+        forgot_password_token: ''
+      },
+    })
+    return {
+      message: USERS_MESSAGES.RESET_PASSWORD
+    }
+  }
+
+  async getMe(user_id: string) {
+    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) }, {
+      projection: {
+        password: 0,
+        email_verify_token: 0,
+        forgot_password_token: 0
+      }
+    })
+    return user
+  }
 }
+
+
 
 const userService = new UserService();  // tạo ra 1 instance của UserService        
 export default userService

@@ -99,3 +99,20 @@ export const verifyForgotPasswordTokenController = async (req: Request, res: Res
     message: USERS_MESSAGES.VERIFY_FORGOT_PASSWORD_TOKEN_SUCCESS
   })
 }
+
+export const resetpasswordController = async (req: Request, res: Response, next: NextFunction) => {
+  const { _id } = req.decoded_forgot_password_token as User
+  const { password } = req.body
+  const result = await userService.resetPassword((_id as ObjectId).toString(), password)
+  res.json(result)
+}
+
+export const getMeController = async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization
+  const result = await userService.getMe(user_id)
+
+  res.json({
+    message: USERS_MESSAGES.GET_ME_SUCCESS,
+    result
+  })
+}
