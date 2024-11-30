@@ -151,7 +151,7 @@ class UserService {
         user_id,
         token_type: TokenType.ForgotPasswordToken,
       },
-      privateKey: process.env.JWT_FORGOT_PASSWORD as string,
+      privateKey: process.env.JWT_SECRET_FORGOT_TOKEN as string,
       options: {
         expiresIn: process.env.EMAIL_FORGOT_TOKEN_EXPIRE_IN
       }
@@ -173,7 +173,8 @@ class UserService {
     //check email forgot
     console.log('forgotpassword : ', forgot_password_token);
     return {
-      message: USERS_MESSAGES.CHECK_EMAIL_FORGOT
+      message: USERS_MESSAGES.CHECK_EMAIL_FORGOT,
+      forgot_password_token
     }
   }
 }

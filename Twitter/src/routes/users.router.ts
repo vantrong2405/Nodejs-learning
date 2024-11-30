@@ -1,6 +1,6 @@
 import express from 'express';
-import { deleteDBController, emailVerifyController, forgetPasswordController, loginController, logoutController, registerController, resenVerifyEmailVerifyController } from '~/controllers/users.controllers';
-import { accessTokenValidator, emailVerifyTokenValidator, forgotPasswordvalidator, loginValidator, refreshTokenValidator, registerValidator } from '~/middlewares/users.middlewares';
+import { deleteDBController, emailVerifyController, forgetPasswordController, loginController, logoutController, registerController, resenVerifyEmailVerifyController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers';
+import { accessTokenValidator, emailVerifyTokenValidator, forgotPasswordvalidator, loginValidator, refreshTokenValidator, registerValidator, verifyForgotPasswordTokenValidator } from '~/middlewares/users.middlewares';
 import { wrapRequestHandler } from '~/utils/handlers';
 const userRouter = express.Router()
 userRouter.use((req, res, next) => {
@@ -12,5 +12,6 @@ userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapRequ
 userRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(emailVerifyController))
 userRouter.post('/resend-verify-email', accessTokenValidator, wrapRequestHandler(resenVerifyEmailVerifyController))
 userRouter.post('/forgot-password', forgotPasswordvalidator, wrapRequestHandler(forgetPasswordController))
+userRouter.post('/verify-forgot-password', verifyForgotPasswordTokenValidator, wrapRequestHandler(verifyForgotPasswordTokenController))
 userRouter.get('/delete-db', deleteDBController)
 export default userRouter
