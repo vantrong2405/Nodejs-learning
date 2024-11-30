@@ -145,7 +145,37 @@ class UserService {
       }
     })
   }
+  private signForgotPasswordToken(user_id: string) {
+    return signToken({
+      payload: {
+        user_id,
+        token_type: TokenType.ForgotPasswordToken,
+      },
+      privateKey: process.env.JWT_FORGOT_PASSWORD as string,
+      options: {
+        expiresIn: process.env.EMAIL_FORGOT_TOKEN_EXPIRE_IN
+      }
+    })
+  }
 
+  async forgotPassword(user_id: string) {
+    const forgot_password_token = await this.signForgotPasswordToken(user_id)
+    databaseService.users.updateOne({
+      _id: new ObjectId(user_id)
+    }, {
+      $set: {
+        forgot_password_token,
+      },
+      $currentDate: {
+        updated_at: true
+      }
+    })
+    //check email forgot
+    console.log('forgotpassword : ', forgot_password_token);
+    return {
+      message: USERS_MESSAGES.CHECK_EMAIL_FORGOT
+    }
+  }
 }
 
 const userService = new UserService();  // tạo ra 1 instance của UserService        

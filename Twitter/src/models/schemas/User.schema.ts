@@ -15,7 +15,7 @@ interface UserType {
   bio?: string
   location?: string
   website?: string
-  username?: string 
+  username?: string
   avatar?: string
   cover_photo?: string
 }
@@ -24,7 +24,7 @@ export default class User {
   _id?: ObjectId
   name: string
   email: string
-  date_of_birth: Date 
+  date_of_birth: Date
   password: string
   created_at: Date
   updated_at: Date
@@ -56,4 +56,4 @@ export default class User {
     this.avatar = user.avatar || ''
     this.cover_photo = user.cover_photo || ''
   }
-  }
+}
