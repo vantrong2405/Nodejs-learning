@@ -20,6 +20,10 @@ export interface UpdateMeReqBody {
   cover_photo: string
 }
 
+export interface followersReqBody {
+  followed_user_id: string
+}
+
 export type UpdateMeReqBodyPartial = Partial<UpdateMeReqBody>
 
 export interface TokenPayload extends JwtPayload {

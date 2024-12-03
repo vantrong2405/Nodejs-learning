@@ -236,3 +236,25 @@ export const verifiedUserValidator = (req: Request, res: Response, next: NextFun
   }
   next()
 }
+
+export const followValidator = validate(checkSchema({
+  followed_user_id: {
+    custom: {
+      options: async (value, { req }) => {
+        if (!ObjectId.isValid(value)) { // dư ký tự thì lụm ko phải kiểu objectId
+          throw new ErrorWithStatus({
+            message: USERS_MESSAGES.INVALID_FOLLOW_USER_ID,
+            status: HTTP_STATUS.NOTFOUND
+          })
+        }
+        const followed_user = await databaseService.users.findOne({ _id: new ObjectId(value) })
+        if (followed_user === null) {
+          throw new ErrorWithStatus({
+            message: USERS_MESSAGES.USER_NOT_FOUND,
+            status: HTTP_STATUS.NOTFOUND
+          })
+        }
+      }
+    }
+  }
+}))

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { RegisterReqBody, TokenPayload, UpdateMeReqBody } from "~/models/requests/User.requests";
+import { followersReqBody, RegisterReqBody, TokenPayload, UpdateMeReqBody } from "~/models/requests/User.requests";
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from "mongodb";
 import User from "~/models/schemas/User.schema";
@@ -127,3 +127,10 @@ export const updateMeController = async (req: Request<ParamsDictionary, any, Upd
     result: user
   })
 }
+export const followController = async (req: Request<ParamsDictionary, any, followersReqBody>, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization
+  const { followed_user_id } = req.body
+  const result = await userService.follower(user_id, followed_user_id)
+  res.json(result)
+}
+
