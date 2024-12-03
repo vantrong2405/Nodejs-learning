@@ -8,6 +8,7 @@ import databaseService from "~/services/database.services";
 import HTTP_STATUS from "~/constants/httpStatus";
 import userService from "~/services/users.services";
 import { UserVerifyStatus } from "~/constants/enum";
+import { pick } from "lodash";
 export const loginController = async (req: Request, res: Response) => {
   const user = req.user as User
   const user_id = user._id as ObjectId

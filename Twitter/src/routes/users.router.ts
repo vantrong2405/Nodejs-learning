@@ -1,6 +1,8 @@
 import express from 'express';
 import { deleteDBController, emailVerifyController, forgetPasswordController, getMeController, loginController, logoutController, registerController, resenVerifyEmailVerifyController, resetpasswordController, updateMeController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers';
+import { filterMiddleware } from '~/middlewares/common.middleware';
 import { accessTokenValidator, emailVerifyTokenValidator, forgotPasswordvalidator, loginValidator, refreshTokenValidator, registerValidator, resetPasswordValidor, updateMeValidator, verifiedUserValidator, verifyForgotPasswordTokenValidator } from '~/middlewares/users.middlewares';
+import { UpdateMeReqBody } from '~/models/requests/User.requests';
 import { wrapRequestHandler } from '~/utils/handlers';
 const userRouter = express.Router()
 userRouter.use((req, res, next) => {
@@ -15,6 +17,6 @@ userRouter.post('/forgot-password', forgotPasswordvalidator, wrapRequestHandler(
 userRouter.post('/verify-forgot-password', verifyForgotPasswordTokenValidator, wrapRequestHandler(verifyForgotPasswordTokenController))
 userRouter.post('/reset-password', resetPasswordValidor, wrapRequestHandler(resetpasswordController))
 userRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController))
-userRouter.patch('/me', accessTokenValidator, verifiedUserValidator, updateMeValidator, wrapRequestHandler(updateMeController))
+userRouter.patch('/me', accessTokenValidator, verifiedUserValidator, updateMeValidator, filterMiddleware<UpdateMeReqBody>(['name', 'date_of_birth', 'bio', 'location', 'website', 'username', 'avatar', 'cover_photo']), wrapRequestHandler(updateMeController))
 userRouter.get('/delete-db', deleteDBController)
 export default userRouter
