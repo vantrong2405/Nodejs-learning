@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { RegisterReqBody, TokenPayload } from "~/models/requests/User.requests";
+import { RegisterReqBody, TokenPayload, UpdateMeReqBody } from "~/models/requests/User.requests";
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from "mongodb";
 import User from "~/models/schemas/User.schema";
@@ -117,8 +117,12 @@ export const getMeController = async (req: Request, res: Response, next: NextFun
   })
 }
 
-export const updateMeController = async (req: Request, res: Response, next: NextFunction) => {
+export const updateMeController = async (req: Request<ParamsDictionary, any, UpdateMeReqBody>, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization
+  const { body } = req
+  const user = await userService.updateMe(user_id, body)
   res.json({
-    message: 'update successfully'
+    message: USERS_MESSAGES.UPDATE_ME_SUCCESS,
+    result: user
   })
 }

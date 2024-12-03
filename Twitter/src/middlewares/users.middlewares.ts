@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { checkSchema } from 'express-validator';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
+import { bioSchema, confirmPasswordSchema, dateOfBirthSchema, emailSchema, imageSchema, locationSchema, nameSchema, passwordSchema, usernameSchema, websiteSchema } from '~/@types/type.schema';
 import { UserVerifyStatus } from '~/constants/enum';
 import HTTP_STATUS from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
@@ -14,145 +15,16 @@ import { verifyToken } from '~/utils/jwt';
 import { validate } from '~/utils/validation';
 
 export const loginValidator = validate(checkSchema({
-  email: {
-    isEmail: {
-      errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
-    },
-    trim: true,
-    custom: {
-      options: async (value, { req }) => {
-        const user = await databaseService.users.findOne({ email: value, password: hashPassword(req.body.password) })
-        if (!user) {
-          throw new ErrorWithStatus({
-            status: HTTP_STATUS.UNAUTHORIZED,
-            message: USERS_MESSAGES.USER_NOT_FOUND
-          })
-        }
-        req.user = user
-        return true
-      }
-    }
-  },
-  password: {
-    isString: {
-      errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
-    },
-    isLength: {
-      options: {
-        min: 6,
-        max: 50
-      },
-      errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-    },
-    isStrongPassword: {
-      options: {
-        minLength: 6,
-        minLowercase: 1,
-        minUppercase: 1,
-        minNumbers: 1,
-        minSymbols: 1 // ký tự đặc biệt
-      },
-      errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
-    }
-  },
+  email: emailSchema,
+  password: passwordSchema
 }, ['body']))
 
 export const registerValidator = validate(checkSchema({
-  name: {
-    notEmpty: {
-      errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
-    },
-    isString: {
-      errorMessage: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_100
-    },
-    isLength: {
-      options: {
-        min: 1,
-        max: 100
-      },
-      errorMessage: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_100
-    },
-    trim: true
-  },
-  email: {
-    isEmail: {
-      errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
-    },
-    trim: true,
-    custom: {
-      options: async (value) => {
-        const isExistEmail = await userService.checkEmailExist(value)
-        if (isExistEmail) {
-          throw new Error(USERS_MESSAGES.EMAIL_ALREADY_EXISTS)
-        }
-        return true
-      }
-    }
-  },
-  password: {
-    isString: {
-      errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
-    },
-    isLength: {
-      options: {
-        min: 6,
-        max: 50
-      },
-      errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-    },
-    isStrongPassword: {
-      options: {
-        minLength: 6,
-        minLowercase: 1,
-        minUppercase: 1,
-        minNumbers: 1,
-        minSymbols: 1 // ký tự đặc biệt
-      },
-      errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
-    }
-  },
-  confirm_password: {
-    notEmpty: {
-      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
-    },
-    isString: {
-      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_A_STRING
-    },
-    isLength: {
-      options: {
-        min: 6,
-        max: 50
-      },
-      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-    },
-    isStrongPassword: {
-      options: {
-        minLength: 6,
-        minLowercase: 1,
-        minUppercase: 1,
-        minNumbers: 1,
-        minSymbols: 1
-      },
-      errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRONG
-    },
-    custom: {
-      options: (value, { req }) => {
-        if (value !== req.body.password) {
-          throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_EQUAL_TO_PASSWORD)
-        }
-        return true
-      }
-    }
-  },
-  date_of_birth: {
-    isISO8601: {
-      options: {
-        strict: true,
-        strictSeparator: true
-      },
-      errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_IS_IO8601
-    }
-  }
+  name: nameSchema,
+  email: emailSchema,
+  password: passwordSchema,
+  confirm_password: confirmPasswordSchema,
+  date_of_birth: dateOfBirthSchema
 }, ['body']))
 
 export const accessTokenValidator = validate(
@@ -236,25 +108,7 @@ export const emailVerifyTokenValidator = validate(
 
 export const forgotPasswordvalidator = validate(
   checkSchema({
-    email: {
-      isEmail: {
-        errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
-      },
-      trim: true,
-      custom: {
-        options: async (value, { req }) => {
-          const user = await databaseService.users.findOne({ email: value })
-          if (!user) {
-            throw new ErrorWithStatus({
-              status: HTTP_STATUS.UNAUTHORIZED,
-              message: USERS_MESSAGES.USER_NOT_FOUND
-            })
-          }
-          req.user = user
-          return true
-        }
-      }
-    },
+    email: emailSchema
   }, ['body'])
 )
 
@@ -346,61 +200,29 @@ export const resetPasswordValidor = validate(
         }
       }
     },
-    password: {
-      isString: {
-        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
-      },
-      isLength: {
-        options: {
-          min: 6,
-          max: 50
-        },
-        errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-      },
-      isStrongPassword: {
-        options: {
-          minLength: 6,
-          minLowercase: 1,
-          minUppercase: 1,
-          minNumbers: 1,
-          minSymbols: 1 // ký tự đặc biệt
-        },
-        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
-      }
+    password: passwordSchema,
+    confirm_password: confirmPasswordSchema
+  }, ['body'])
+)
+
+export const updateMeValidator = validate(
+  checkSchema({
+    name: {
+      ...nameSchema,
+      optional: true,
+      notEmpty: undefined
     },
-    confirm_password: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
-      },
-      isString: {
-        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_A_STRING
-      },
-      isLength: {
-        options: {
-          min: 6,
-          max: 50
-        },
-        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-      },
-      isStrongPassword: {
-        options: {
-          minLength: 6,
-          minLowercase: 1,
-          minUppercase: 1,
-          minNumbers: 1,
-          minSymbols: 1
-        },
-        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRONG
-      },
-      custom: {
-        options: (value, { req }) => {
-          if (value !== req.body.password) {
-            throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_EQUAL_TO_PASSWORD)
-          }
-          return true
-        }
-      }
+    date_of_birth: {
+      ...dateOfBirthSchema,
+      optional: true,
+      notEmpty: undefined
     },
+    bio: bioSchema,
+    location: locationSchema,
+    website: websiteSchema,
+    username: usernameSchema,
+    avatar: imageSchema,
+    cover_photo: imageSchema
   }, ['body'])
 )
 
