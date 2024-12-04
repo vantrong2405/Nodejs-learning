@@ -1,7 +1,7 @@
 import express from 'express';
-import { deleteDBController, emailVerifyController, followController, forgetPasswordController, getMeController, loginController, logoutController, registerController, resenVerifyEmailVerifyController, resetpasswordController, unfollowController, updateMeController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers';
+import { changePasswordController, deleteDBController, emailVerifyController, followController, forgetPasswordController, getMeController, loginController, logoutController, registerController, resenVerifyEmailVerifyController, resetpasswordController, unfollowController, updateMeController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers';
 import { filterMiddleware } from '~/middlewares/common.middleware';
-import { accessTokenValidator, emailVerifyTokenValidator, followValidator, forgotPasswordvalidator, loginValidator, refreshTokenValidator, registerValidator, resetPasswordValidor, unfollowValidator, updateMeValidator, verifiedUserValidator, verifyForgotPasswordTokenValidator } from '~/middlewares/users.middlewares';
+import { accessTokenValidator, changePasswordValidator, emailVerifyTokenValidator, followValidator, forgotPasswordvalidator, loginValidator, refreshTokenValidator, registerValidator, resetPasswordValidor, unfollowValidator, updateMeValidator, verifiedUserValidator, verifyForgotPasswordTokenValidator } from '~/middlewares/users.middlewares';
 import { UpdateMeReqBody } from '~/models/requests/User.requests';
 import { wrapRequestHandler } from '~/utils/handlers';
 const userRouter = express.Router()
@@ -16,6 +16,7 @@ userRouter.post('/resend-verify-email', accessTokenValidator, wrapRequestHandler
 userRouter.post('/forgot-password', forgotPasswordvalidator, wrapRequestHandler(forgetPasswordController))
 userRouter.post('/verify-forgot-password', verifyForgotPasswordTokenValidator, wrapRequestHandler(verifyForgotPasswordTokenController))
 userRouter.post('/reset-password', resetPasswordValidor, wrapRequestHandler(resetpasswordController))
+userRouter.put('/change-password', accessTokenValidator, verifiedUserValidator, changePasswordValidator, wrapRequestHandler(changePasswordController))
 userRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController))
 userRouter.patch('/me', accessTokenValidator, verifiedUserValidator, updateMeValidator, filterMiddleware<UpdateMeReqBody>(['name', 'date_of_birth', 'bio', 'location', 'website', 'username', 'avatar', 'cover_photo']), wrapRequestHandler(updateMeController))
 

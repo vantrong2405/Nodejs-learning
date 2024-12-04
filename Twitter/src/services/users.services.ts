@@ -269,6 +269,19 @@ class UserService {
       message: USERS_MESSAGES.UNFOLLOW_SUCCESS
     }
   }
+
+  async changePassword(user_id: string, new_password: string) {
+    await databaseService.users.updateOne({
+      _id: new ObjectId(user_id)
+    }, {
+      $set: {
+        new_password: hashPassword(new_password)
+      }
+    })
+    return {
+      message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS
+    }
+  }
 }
 
 const userService = new UserService();  // tạo ra 1 instance của UserService        

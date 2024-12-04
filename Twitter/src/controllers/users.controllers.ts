@@ -141,4 +141,9 @@ export const unfollowController = async (req: Request<unfollowersReqBody>, res: 
   res.json(result)
 }
 
-
+export const changePasswordController = async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization
+  const { new_password } = req.body
+  const result = await userService.changePassword(user_id, new_password)
+  res.json(result)
+}
