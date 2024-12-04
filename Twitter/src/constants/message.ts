@@ -59,6 +59,9 @@ export const USERS_MESSAGES = {
   IMG_LENGTH: 'Image length must be from 1 to 400',
   UPDATE_ME_SUCCESS: 'Update me success',
   FOLLOW_SUCCESS: 'Follow success',
-  INVALID_FOLLOW_USER_ID: 'Invalid follower userid',
+  INVALID_USER_ID: 'Invalid userid',
   FOLLOW_ALREADY_EXISTS: 'Follow already exists',
+  UNFOLLOW_SUCCESS: 'Unfollow success',
+  ALREADY_UNFOLLOW_SUCCESS: 'Already unfollow success',
+  FOLLOWED: 'FOLLOWED'
 } as const

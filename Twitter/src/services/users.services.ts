@@ -233,7 +233,7 @@ class UserService {
     const follower = await databaseService.followers.findOne({
       user_id: new ObjectId(user_id),
       followed_user_id: new ObjectId(followed_user_id)
-    })  
+    })
 
     if (follower === null) {
       await databaseService.followers.insertOne(new Follower({
@@ -249,8 +249,25 @@ class UserService {
     return {
       message: USERS_MESSAGES.FOLLOW_ALREADY_EXISTS
     }
+  }
 
-
+  async unfollower(user_id: string, followed_user_id: string) {
+    const follower = await databaseService.followers.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    if (follower === null) {
+      return {
+        message: USERS_MESSAGES.ALREADY_UNFOLLOW_SUCCESS
+      }
+    }
+    await databaseService.followers.deleteOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    return {
+      message: USERS_MESSAGES.UNFOLLOW_SUCCESS
+    }
   }
 }
 

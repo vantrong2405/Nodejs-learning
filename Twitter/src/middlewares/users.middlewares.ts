@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { checkSchema } from 'express-validator';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
-import { bioSchema, confirmPasswordSchema, dateOfBirthSchema, emailSchema, imageSchema, locationSchema, nameSchema, passwordSchema, usernameSchema, websiteSchema } from '~/@types/type.schema';
+import { bioSchema, confirmPasswordSchema, dateOfBirthSchema, emailSchema, imageSchema, locationSchema, nameSchema, passwordSchema, usernameSchema, userSchema, websiteSchema } from '~/@types/type.schema';
 import { UserVerifyStatus } from '~/constants/enum';
 import HTTP_STATUS from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
@@ -238,23 +238,10 @@ export const verifiedUserValidator = (req: Request, res: Response, next: NextFun
 }
 
 export const followValidator = validate(checkSchema({
-  followed_user_id: {
-    custom: {
-      options: async (value, { req }) => {
-        if (!ObjectId.isValid(value)) { // dư ký tự thì lụm ko phải kiểu objectId
-          throw new ErrorWithStatus({
-            message: USERS_MESSAGES.INVALID_FOLLOW_USER_ID,
-            status: HTTP_STATUS.NOTFOUND
-          })
-        }
-        const followed_user = await databaseService.users.findOne({ _id: new ObjectId(value) })
-        if (followed_user === null) {
-          throw new ErrorWithStatus({
-            message: USERS_MESSAGES.USER_NOT_FOUND,
-            status: HTTP_STATUS.NOTFOUND
-          })
-        }
-      }
-    }
-  }
-}))
+  followed_user_id: userSchema
+}, ['body']))
+
+export const unfollowValidator = validate(checkSchema({
+  user_id: userSchema
+}, ['params']))
+

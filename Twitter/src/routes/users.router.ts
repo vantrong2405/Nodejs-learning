@@ -1,7 +1,7 @@
 import express from 'express';
-import { deleteDBController, emailVerifyController, followController, forgetPasswordController, getMeController, loginController, logoutController, registerController, resenVerifyEmailVerifyController, resetpasswordController, updateMeController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers';
+import { deleteDBController, emailVerifyController, followController, forgetPasswordController, getMeController, loginController, logoutController, registerController, resenVerifyEmailVerifyController, resetpasswordController, unfollowController, updateMeController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers';
 import { filterMiddleware } from '~/middlewares/common.middleware';
-import { accessTokenValidator, emailVerifyTokenValidator, followValidator, forgotPasswordvalidator, loginValidator, refreshTokenValidator, registerValidator, resetPasswordValidor, updateMeValidator, verifiedUserValidator, verifyForgotPasswordTokenValidator } from '~/middlewares/users.middlewares';
+import { accessTokenValidator, emailVerifyTokenValidator, followValidator, forgotPasswordvalidator, loginValidator, refreshTokenValidator, registerValidator, resetPasswordValidor, unfollowValidator, updateMeValidator, verifiedUserValidator, verifyForgotPasswordTokenValidator } from '~/middlewares/users.middlewares';
 import { UpdateMeReqBody } from '~/models/requests/User.requests';
 import { wrapRequestHandler } from '~/utils/handlers';
 const userRouter = express.Router()
@@ -21,6 +21,7 @@ userRouter.patch('/me', accessTokenValidator, verifiedUserValidator, updateMeVal
 
 // twitter
 userRouter.post('/follow', accessTokenValidator, verifiedUserValidator, followValidator, wrapRequestHandler(followController))
+userRouter.delete('/follow/:user_id', accessTokenValidator, verifiedUserValidator, unfollowValidator, wrapRequestHandler(unfollowController))
 
 // delete full db
 userRouter.get('/delete-db', deleteDBController)

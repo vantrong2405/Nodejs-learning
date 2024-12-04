@@ -1,4 +1,5 @@
 import { ParamSchema } from "express-validator";
+import { ObjectId } from "mongodb";
 import HTTP_STATUS from "~/constants/httpStatus";
 import { USERS_MESSAGES } from "~/constants/message";
 import { ErrorWithStatus } from "~/models/Errors";
@@ -182,4 +183,24 @@ export const imageSchema: ParamSchema = {
     },
     errorMessage: USERS_MESSAGES.IMG_LENGTH
   },
+}
+
+export const userSchema: ParamSchema = {
+  custom: {
+    options: async (value, { req }) => {
+      if (!ObjectId.isValid(value)) { // dư ký tự thì lụm ko phải kiểu objectId
+        throw new ErrorWithStatus({
+          message: USERS_MESSAGES.INVALID_USER_ID,
+          status: HTTP_STATUS.NOTFOUND
+        })
+      }
+      const followed_user = await databaseService.users.findOne({ _id: new ObjectId(value) })
+      if (followed_user === null) {
+        throw new ErrorWithStatus({
+          message: USERS_MESSAGES.USER_NOT_FOUND,
+          status: HTTP_STATUS.NOTFOUND
+        })
+      }
+    }
+  }
 }
