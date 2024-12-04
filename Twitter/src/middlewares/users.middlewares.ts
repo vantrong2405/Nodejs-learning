@@ -1,3 +1,4 @@
+import { error } from 'console';
 import { Request, Response, NextFunction } from 'express';
 import { checkSchema } from 'express-validator';
 import { JsonWebTokenError } from 'jsonwebtoken';
@@ -6,6 +7,7 @@ import { bioSchema, confirmPasswordSchema, dateOfBirthSchema, emailSchema, image
 import { UserVerifyStatus } from '~/constants/enum';
 import HTTP_STATUS from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
+import { REGEX_USERNAME } from '~/constants/regex';
 import { ErrorWithStatus } from '~/models/Errors';
 import { TokenPayload } from '~/models/requests/User.requests';
 import databaseService from '~/services/database.services';
@@ -21,7 +23,24 @@ export const loginValidator = validate(checkSchema({
 
 export const registerValidator = validate(checkSchema({
   name: nameSchema,
-  email: emailSchema,
+  email: {
+    trim: true,
+    isEmail: {
+      errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
+    },
+    custom: {
+      options: async (value, { req }) => {
+        const user = await databaseService.users.findOne({ email: value })
+        if (user) {
+          throw new ErrorWithStatus({
+            status: HTTP_STATUS.UNAUTHORIZED,
+            message: USERS_MESSAGES.EMAIL_ALREADY_EXISTS
+          })
+        }
+        return true
+      }
+    }
+  },
   password: passwordSchema,
   confirm_password: confirmPasswordSchema,
   date_of_birth: dateOfBirthSchema
@@ -108,7 +127,22 @@ export const emailVerifyTokenValidator = validate(
 
 export const forgotPasswordvalidator = validate(
   checkSchema({
-    email: emailSchema
+    email: {
+      trim: true,
+      isEmail: {
+        errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
+      },
+      custom: {
+        options: async (value, { req }) => {
+          const user = await databaseService.users.findOne({ email: value })
+          if (!user) {
+            throw Error(USERS_MESSAGES.USER_NOT_FOUND)
+          }
+          req.user = user
+          return true
+        }
+      }
+    },
   }, ['body'])
 )
 
@@ -220,7 +254,37 @@ export const updateMeValidator = validate(
     bio: bioSchema,
     location: locationSchema,
     website: websiteSchema,
-    username: usernameSchema,
+    username: {
+      optional: true,
+      isString: {
+        errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_A_STRING
+      },
+      isLength: {
+        options: {
+          min: 1,
+          max: 50
+        },
+        errorMessage: USERS_MESSAGES.USERNAME_LENGTH
+      },
+      trim: true,
+      custom: {
+        options: async (value, { req }) => {
+          if (!REGEX_USERNAME.test(value)) {
+            throw Error(
+              USERS_MESSAGES.USERNAME_INVALID
+            )
+          }
+          const user = await databaseService.users.findOne({
+            username: value
+          })
+
+          if (user) {
+            throw Error(USERS_MESSAGES.USERNAME_ALREADY_EXISTS)
+          }
+
+        }
+      }
+    },
     avatar: imageSchema,
     cover_photo: imageSchema
   }, ['body'])

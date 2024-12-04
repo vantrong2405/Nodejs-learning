@@ -63,5 +63,7 @@ export const USERS_MESSAGES = {
   FOLLOW_ALREADY_EXISTS: 'Follow already exists',
   UNFOLLOW_SUCCESS: 'Unfollow success',
   ALREADY_UNFOLLOW_SUCCESS: 'Already unfollow success',
-  FOLLOWED: 'FOLLOWED'
+  FOLLOWED: 'FOLLOWED',
+  USERNAME_INVALID: 'username must be 4-15 characters long and can only contain letters, numbers, and underscores, not only numbers',
+  USERNAME_ALREADY_EXISTS: 'Username already exists',
 } as const
