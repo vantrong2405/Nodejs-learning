@@ -15,8 +15,8 @@ export const handleUploadImage = async (req: any) => {
     uploadDir: UPLOAD_TEMP_DIR,
     maxFiles: 4,
     keepExtensions: true,
-    maxFileSize: 5000 * 1024,
-    maxTotalFileSize: (5000 * 1024) * 4,
+    maxFileSize: 300 * 1024,
+    maxFieldsSize: 300 * 1024 * 4,
     filter: function ({ name, originalFilename, mimetype }) {
       const valid = name === 'image' && Boolean(mimetype?.includes('image/'))
       if (!valid) {
@@ -26,11 +26,11 @@ export const handleUploadImage = async (req: any) => {
     }
   })
 
-  return new Promise<File>((resolve, reject) => {
+  return new Promise<File[]>((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) return reject(err)
       if (!Boolean(files.image)) return reject(new Error('File is empty'))
-      if (files.image) return Array.isArray(files.image) ? resolve(files.image[0] as File) : resolve(files.image as File)
+      resolve(files.image as File[])
     })
   })
 }

@@ -1,16 +1,26 @@
 import { NextFunction, Response, Request } from "express";
-import { File } from "formidable";
 import path from "path";
-import { UPLOAD_DIR, UPLOAD_TEMP_DIR } from "~/constants/dir";
+import { UPLOAD_DIR } from "~/constants/dir";
+import HTTP_STATUS from "~/constants/httpStatus";
+import { USERS_MESSAGES } from "~/constants/message";
 import mediaService from "~/services/medias.services";
-import { handleUploadImage, initFolder } from "~/utils/file";
 
-initFolder(UPLOAD_DIR)
-initFolder(UPLOAD_TEMP_DIR)
-
-export const uploadSingleImageController = async (req: Request, res: Response, next: NextFunction) => {
-  const result = await mediaService.handleUploadSingleImage(req);
+export const uploadImageController = async (req: Request, res: Response, next: NextFunction) => {
+  const url = await mediaService.uploadImage(req);
   res.json({
-    result
+    message: USERS_MESSAGES.UPLOAD_IMAGE_SUCCESS,
+    result: url
   })
 };
+
+export const serveImageController = (req: Request, res: Response, next: NextFunction) => {
+  const { name } = req.params
+  return res.sendFile(path.resolve(UPLOAD_DIR, name), (err) => {
+    if (err) {
+      res.status(HTTP_STATUS.NOTFOUND).json({
+        message: USERS_MESSAGES.IMAGE_NOT_FOUND
+      })
+    }
+  })
+}
+
