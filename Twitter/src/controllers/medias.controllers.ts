@@ -1,12 +1,9 @@
 import { NextFunction, Response, Request } from "express";
 import path from "path";
-import fs from "fs";
+import { initFolder } from "~/utils/file";
 
-const uploadDir = path.resolve('uploads')
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true })
-}
-
+const uploadDir = path.resolve('uploads/images')
+initFolder(uploadDir)
 export const uploadSingleImageController = async (req: Request, res: Response, next: NextFunction) => {
   const formidable = (await import('formidable')).default;
   const form = formidable({
