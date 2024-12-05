@@ -6,6 +6,7 @@ import { config } from 'dotenv'
 import { getNameFromFUllName, handleUploadImage } from '~/utils/file'
 import { File } from 'formidable'
 import { UPLOAD_DIR } from '~/constants/dir'
+import { isProduction } from '~/utils/config'
 
 config()
 class MediaService {
@@ -15,7 +16,8 @@ class MediaService {
     const newPath = path.resolve(UPLOAD_DIR, `${newName}.jpg`)// đây là đường dẫn đến file upload
     await sharp((file as File).filepath).jpeg().toFile(newPath) // khi upload xong thì chuyển vào vào upload và lưu format jpg
     fs.unlinkSync(file.filepath) // xóa ở temp
-    return `http://localhost:3000/upload/${newName}.jpg`
+    return isProduction ? `${process.env.HOST}/static/media/${newName}.jpg`
+      : `http://localhost:${process.env.PORT}/static/image/${newName}.jpg`
   }
 }
 const mediaService = new MediaService()
