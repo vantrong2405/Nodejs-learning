@@ -1,5 +1,5 @@
 import express from 'express';
-import { changePasswordController, deleteDBController, emailVerifyController, followController, forgetPasswordController, getMeController, loginController, logoutController, registerController, resenVerifyEmailVerifyController, resetpasswordController, unfollowController, updateMeController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers';
+import { changePasswordController, deleteDBController, emailVerifyController, followController, forgetPasswordController, getMeController, loginController, logoutController, oauthController, registerController, resenVerifyEmailVerifyController, resetpasswordController, unfollowController, updateMeController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers';
 import { filterMiddleware } from '~/middlewares/common.middleware';
 import { accessTokenValidator, changePasswordValidator, emailVerifyTokenValidator, followValidator, forgotPasswordvalidator, loginValidator, refreshTokenValidator, registerValidator, resetPasswordValidor, unfollowValidator, updateMeValidator, verifiedUserValidator, verifyForgotPasswordTokenValidator } from '~/middlewares/users.middlewares';
 import { UpdateMeReqBody } from '~/models/requests/User.requests';
@@ -9,6 +9,7 @@ userRouter.use((req, res, next) => {
   next()
 })
 userRouter.post('/login', loginValidator, wrapRequestHandler(loginController))
+userRouter.get('/oauth/google', wrapRequestHandler(oauthController))
 userRouter.post('/register', registerValidator, wrapRequestHandler(registerController))
 userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapRequestHandler(logoutController))
 userRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(emailVerifyController))

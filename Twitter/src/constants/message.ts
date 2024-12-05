@@ -68,4 +68,5 @@ export const USERS_MESSAGES = {
   USERNAME_ALREADY_EXISTS: 'Username already exists',
   PASSWORD_OLD_NOT_MATCH: 'Password old not match',
   CHANGE_PASSWORD_SUCCESS: 'Change password success',
+  GMAIL_NOT_VERIFIED: 'Gmail not verified',
 } as const
