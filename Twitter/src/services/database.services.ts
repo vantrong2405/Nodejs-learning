@@ -36,10 +36,7 @@ class DatabaseService {
   get followers(): Collection<Follower> {
     return this.db.collection(process.env.DB_FOLLOWERS_COLLECTION as string)
   }
-
-
 }
-
 
 const databaseService = new DatabaseService()
 export default databaseService
