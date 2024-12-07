@@ -17,12 +17,12 @@ class MediaService {
     const result: Media[] = await Promise.all(files.map(async (file) => {
       const newName = getNameFromFUllName(file.newFilename) // lấy tên file bỏ đuôi extension để chuẩn bị đổi tên dòng newPath
       const newPath = path.resolve(UPLOAD_IMAGE_DIR, `${newName}.jpg`)// đây là đường dẫn đến file upload
-      if (file.newFilename.toLowerCase().endsWith('.jpg')) {
-        await fs.promises.rename(file.filepath, newPath) // Nếu tệp là .jpg, chỉ cần chuyển tệp tạm về đích mà không cần xử lý lại
-      } else {
+      if (!file.newFilename.toLowerCase().endsWith('.jpg')) {
         await sharp(file.filepath).jpeg().toFile(newPath) // Nếu tệp không phải .jpg, chuyển đổi nó thành .jpg bằng sharp
+        fs.unlinkSync(file.filepath)
+      } else {
+        fs.renameSync(file.filepath, newPath) // Nếu tệp là.jpg, chỉ cần chuyển tệp tạm về đích mà không cần xử lý lại
       }
-      fs.unlinkSync(file.filepath) // xóa ở temp
       return {
         url: isProduction ? `${process.env.HOST}/static/image/${newName}.jpg` : `http://localhost:${process.env.PORT}/static/image/${newName}.jpg`,
         type: MediaType.Image
@@ -32,9 +32,9 @@ class MediaService {
   }
   async uploadVideo(req: Request) {
     const files = await handleUploadVideo(req)
-    const { newFilename } = files[0]
+    const { newFilename, filepath } = files[0]
     const newPath = path.resolve(UPLOAD_VIDEO_DIR, `${newFilename}`)
-    await fs.promises.rename(files[0].filepath, newPath)
+    await fs.promises.rename(filepath, newPath)
     return {
       url: isProduction ? `${process.env.HOST}/static/video/${newFilename}` : `http://localhost:${process.env.PORT}/static/video/${newFilename}`,
       type: MediaType.Video
