@@ -2,6 +2,7 @@ import path from "path"
 import fs from "fs";
 import { UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_TEMP_DIR } from "~/constants/dir";
 import formidable, { File } from "formidable";
+import { log } from "console";
 
 export const initFolder = (pathFolder: string) => {
   const uploadDir = path.resolve(pathFolder)
@@ -38,7 +39,6 @@ export const handleUploadVideo = async (req: any) => {
   const form = formidable({
     uploadDir: UPLOAD_VIDEO_TEMP_DIR,
     maxFiles: 4,
-    keepExtensions: true,
     maxFileSize: 50 * 1024 * 1024, //50MB
     filter: function ({ name, originalFilename, mimetype }) {
       const valid = name === 'video' && Boolean(mimetype?.includes('video/'))
@@ -53,6 +53,12 @@ export const handleUploadVideo = async (req: any) => {
     form.parse(req, (err, fields, files) => {
       if (err) return reject(err)
       if (!Boolean(files.video)) return reject(new Error('File is empty'))
+      const videos = files.video as File[]
+      videos.map((video) => {
+        const ext = getExtensionFromName(video.originalFilename as string)
+        video.newFilename = `${video.newFilename}.${ext}`
+        return video
+      })
       resolve(files.video as File[])
     })
   })
@@ -62,4 +68,10 @@ export const getNameFromFUllName = (fullName: string) => {
   const namearr = fullName.split('.')
   namearr.pop()
   return namearr.join('.')
+}
+
+
+export const getExtensionFromName = (fullName: string) => {
+  const namearr = fullName.split('.')
+  return namearr[namearr.length - 1]
 }

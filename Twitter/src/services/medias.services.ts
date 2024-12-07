@@ -35,10 +35,13 @@ class MediaService {
     const { newFilename, filepath } = files[0]
     const newPath = path.resolve(UPLOAD_VIDEO_DIR, `${newFilename}`)
     await fs.promises.rename(filepath, newPath)
-    return {
-      url: isProduction ? `${process.env.HOST}/static/video/${newFilename}` : `http://localhost:${process.env.PORT}/static/video/${newFilename}`,
-      type: MediaType.Video
-    }
+    const result = files.map(file => {
+      return {
+        url: isProduction ? `${process.env.HOST}/static/video/${file.newFilename}` : `http://localhost:${process.env.PORT}/static/video/${file.newFilename}`,
+        type: MediaType.Video
+      }
+    })
+    return result
   }
 }
 const mediaService = new MediaService()
