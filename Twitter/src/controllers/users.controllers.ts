@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { followersReqBody, RegisterReqBody, TokenPayload, unfollowersReqBody, UpdateMeReqBody } from "~/models/requests/User.requests";
+import { followersReqBody, LoginReqBody, LogoutReqBody, RefreshTokenReqBody, RegisterReqBody, TokenPayload, unfollowersReqBody, UpdateMeReqBody } from "~/models/requests/User.requests";
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from "mongodb";
 import User from "~/models/schemas/User.schema";
@@ -9,7 +9,7 @@ import HTTP_STATUS from "~/constants/httpStatus";
 import userService from "~/services/users.services";
 import { UserVerifyStatus } from "~/constants/enum";
 
-export const loginController = async (req: Request, res: Response) => {
+export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const user = req.user as User
   const user_id = user._id as ObjectId
   const result = await userService.login({ user_id: user_id.toString(), verify: user.verify })
@@ -34,11 +34,20 @@ export const registerController = async (req: Request<ParamsDictionary, any, Reg
   });
 }
 
-export const logoutController = async (req: Request, res: Response) => {
+export const logoutController = async (req: Request<ParamsDictionary, any, LogoutReqBody>, res: Response) => {
   const { refresh_token } = req.body
   const result = await userService.logout(refresh_token)
   res.json({
     message: USERS_MESSAGES.LOGOUT_SUCCESS,
+    result
+  })
+}
+export const refreshTolenController = async (req: Request<ParamsDictionary, any, RefreshTokenReqBody>, res: Response) => {
+  const { refresh_token } = req.body
+  const { user_id, verify } = req.decoded_refresh_token as TokenPayload
+  const result = await userService.refreshToken({ refresh_token, verify, user_id })
+  res.json({
+    message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESS,
     result
   })
 }
@@ -69,7 +78,7 @@ export const deleteDBController = async (req: Request, res: Response) => {
     await databaseService.users.deleteMany({})
     await databaseService.refreshTokens.deleteMany({})
     res.json({
-      message: 'Delete DB Success'
+      message: USERS_MESSAGES.DELETE_DB_SUCCESS
     })
   } catch (error) {
     res.json(error)
