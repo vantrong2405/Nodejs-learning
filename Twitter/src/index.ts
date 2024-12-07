@@ -20,7 +20,7 @@ app.use(express.json());// convert json -> data
 app.use('/users', userRouter)
 app.use('/medias', mediasRouter)
 app.use('/static', staticRoutes)
-// app.use('/static', express.static(UPLOAD_IMAGE_DIR))
+app.use('/static/video', express.static(UPLOAD_VIDEO_DIR)) // tự độn phục vụ cho các tệp chứa trong UPLOAD_VIDEO_DIR. nếu name video có trong folder này
 // default error handler
 app.use(defaultErrorHandler)
 

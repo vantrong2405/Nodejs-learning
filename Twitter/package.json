@@ -24,6 +24,7 @@
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "mime-types": "^2.1.35",
     "nodemon": "^3.1.4",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
@@ -35,6 +36,7 @@
   "dependencies": {
     "@types/formidable": "^3.4.5",
     "@types/lodash": "^4.17.13",
+    "@types/mime-types": "^2.1.4",
     "@types/minimist": "^1.2.5",
     "axios": "^1.7.9",
     "dotenv": "^16.4.5",
@@ -43,6 +45,7 @@
     "formidable": "^3.5.2",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "mine": "^0.1.0",
     "minimist": "^1.2.8",
     "mongodb": "^6.9.0",
     "sharp": "^0.33.5"

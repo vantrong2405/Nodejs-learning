@@ -39,6 +39,9 @@ function Home() {
           <img src={reactLogo} className='logo react' alt='React logo' />
         </div>
       </div>
+ <video controls width={500}>
+  <source src='http://localhost:4000/static/video-stream/8a937caa239aeb2468aece900.mp4' type='video/mp4'></source>
+ </video>
       <h1>OAuth Google</h1>
       <div>
         {isAuthenticated ? (
