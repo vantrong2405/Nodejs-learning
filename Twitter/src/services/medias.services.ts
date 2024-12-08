@@ -9,6 +9,7 @@ import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
 import { isProduction } from '~/utils/config'
 import { MediaType } from '~/constants/enum'
 import { Media } from '~/models/Other'
+import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
 
 config()
 class MediaService {
@@ -41,6 +42,21 @@ class MediaService {
         type: MediaType.Video
       }
     })
+    return result
+  }
+  async uploadVideoHLS(req: Request) {
+    const files = await handleUploadVideo(req)
+    const result = await Promise.all(
+      files.map(async (file) => {
+        await encodeHLSWithMultipleVideoStreams(file.filepath)
+        return {
+          url: isProduction
+            ? `${process.env.HOST}/static/video/${file.newFilename}`
+            : `http://localhost:${process.env.PORT}/static/video/${file.newFilename}`,
+          type: MediaType.Video
+        }
+      })
+    )
     return result
   }
 }

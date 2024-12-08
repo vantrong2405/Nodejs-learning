@@ -21,7 +21,15 @@ export const uploadVideoController = async (req: Request, res: Response, next: N
     message: USERS_MESSAGES.UPLOAD_VIDEO_SUCCESS,
     result: url
   })
-};
+}
+
+export const uploadVideoHLSController = async (req: Request, res: Response, next: NextFunction) => {
+  const url = await mediaService.uploadVideoHLS(req);
+  res.json({
+    message: USERS_MESSAGES.UPLOAD_VIDEO_SUCCESS,
+    result: url
+  })
+}
 
 export const serveImageController = (req: Request, res: Response, next: NextFunction) => {
   const { name } = req.params
