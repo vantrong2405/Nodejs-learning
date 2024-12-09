@@ -16,86 +16,77 @@ import { VideoStatus } from '~/models/schemas/VideoStatus.schema'
 config()
 
 class Queue {
-  item: string[]
-  encoding: boolean
-  constructor() {
-    this.item = []
-    this.encoding = false
-  }
+  item: string[] = [];
+  encoding: boolean = false;
+
+  // Thêm kiểm tra lỗi cho enqueue và xử lý video
   async enqueue(item: string) {
-    this.item.push(item)
-    const nameID = getNameFromFUllName(item.split('/').pop() as string)
-    await databaseService.videoStatus.insertOne(
-      new VideoStatus({
-        name: nameID,
-        status: EncodingStatus.Pending
-      })
-    )
-    this.processEncode()
+    try {
+      this.item.push(item);
+      const nameID = getNameFromFUllName(item.split('/').pop() as string);
+
+      await databaseService.videoStatus.insertOne(
+        new VideoStatus({
+          name: nameID,
+          status: EncodingStatus.Pending
+        })
+      );
+      this.processEncode();
+    } catch (error) {
+      console.error('Error enqueuing video:', error);
+    }
   }
+
+  // Sử dụng vòng lặp thay vì đệ quy để xử lý
   async processEncode() {
-    if (this.encoding) return
-    if (this.item.length > 0) {
-      this.encoding = true
-      const videoPath = this.item[0]
-      const nameID = getNameFromFUllName(videoPath.split('/').pop() as string)
-      await databaseService.videoStatus.updateOne(
-        {
-          name: nameID
-        },
-        {
-          $set: {
-            status: EncodingStatus.Processing
-          },
-          $currentDate: {
-            updated_at: true
-          }
-        }
-      )
+    if (this.encoding) return;  // Kiểm tra trạng thái encoding
+
+    while (this.item.length > 0) {
+      this.encoding = true;
+      const videoPath = this.item[0];
+      const nameID = getNameFromFUllName(videoPath.split('/').pop() as string);
+
       try {
-        await encodeHLSWithMultipleVideoStreams(videoPath)
-        this.item.shift()
-        await fs.unlinkSync(videoPath)
         await databaseService.videoStatus.updateOne(
+          { name: nameID },
           {
-            name: nameID
-          },
-          {
-            $set: {
-              status: EncodingStatus.Success
-            },
-            $currentDate: {
-              updated_at: true
-            }
+            $set: { status: EncodingStatus.Processing },
+            $currentDate: { updated_at: true }
           }
-        )
+        );
+
+        await encodeHLSWithMultipleVideoStreams(videoPath);
+        this.item.shift();
+        await fs.unlinkSync(videoPath);
+
+        await databaseService.videoStatus.updateOne(
+          { name: nameID },
+          {
+            $set: { status: EncodingStatus.Success },
+            $currentDate: { updated_at: true }
+          }
+        );
       } catch (error) {
-        console.log('Encode Video Error: ' + error)
-        await databaseService.videoStatus
-          .updateOne(
-            {
-              name: nameID
-            },
-            {
-              $set: {
-                status: EncodingStatus.Failed
-              },
-              $currentDate: {
-                updated_at: true
-              }
-            }
-          )
-          .catch((err) => {
-            console.log('Update Video Status Error: ' + err)
-          })
+        console.log('Encode Video Error: ' + error);
+        await databaseService.videoStatus.updateOne(
+          { name: nameID },
+          {
+            $set: { status: EncodingStatus.Failed },
+            $currentDate: { updated_at: true }
+          }
+        );
       }
-      this.encoding = false
-      this.processEncode()
+    }
+
+    this.encoding = false;
+    if (this.item.length > 0) {
+      this.processEncode();  // Lưu ý tránh đệ quy quá mức
     } else {
-      console.log('Encode Video Queue Empty')
+      console.log('Encode Video Queue Empty');
     }
   }
 }
+
 const queue = new Queue()
 class MediaService {
   async uploadImage(req: Request) {

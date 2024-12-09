@@ -13,7 +13,12 @@ initFolder(UPLOAD_IMAGE_DIR)
 initFolder(UPLOAD_IMAGE_TEMP_DIR)
 initFolder(UPLOAD_VIDEO_DIR)
 initFolder(UPLOAD_VIDEO_TEMP_DIR)
-databaseService.connect()
+databaseService.connect().then(() => {
+  databaseService.indexeUser()
+  databaseService.indexRefreshToken()
+  databaseService.indexVideoStatus()
+  databaseService.indexFollowers()
+})
 const app = express();
 const port = process.env.PORT || 4000
 app.use(express.json());// convert json -> data
