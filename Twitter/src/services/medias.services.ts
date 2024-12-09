@@ -7,11 +7,96 @@ import { getNameFromFUllName, handleUploadImage, handleUploadVideo } from '~/uti
 import { File } from 'formidable'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
 import { isProduction } from '~/utils/config'
-import { MediaType } from '~/constants/enum'
+import { EncodingStatus, MediaType } from '~/constants/enum'
 import { Media } from '~/models/Other'
 import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
+import databaseService from '~/services/database.services'
+import { VideoStatus } from '~/models/schemas/VideoStatus.schema'
 
 config()
+
+class Queue {
+  item: string[]
+  encoding: boolean
+  constructor() {
+    this.item = []
+    this.encoding = false
+  }
+  async enqueue(item: string) {
+    this.item.push(item)
+    const nameID = getNameFromFUllName(item.split('/').pop() as string)
+    await databaseService.videoStatus.insertOne(
+      new VideoStatus({
+        name: nameID,
+        status: EncodingStatus.Pending
+      })
+    )
+    this.processEncode()
+  }
+  async processEncode() {
+    if (this.encoding) return
+    if (this.item.length > 0) {
+      this.encoding = true
+      const videoPath = this.item[0]
+      const nameID = getNameFromFUllName(videoPath.split('/').pop() as string)
+      await databaseService.videoStatus.updateOne(
+        {
+          name: nameID
+        },
+        {
+          $set: {
+            status: EncodingStatus.Processing
+          },
+          $currentDate: {
+            updated_at: true
+          }
+        }
+      )
+      try {
+        await encodeHLSWithMultipleVideoStreams(videoPath)
+        this.item.shift()
+        await fs.unlinkSync(videoPath)
+        await databaseService.videoStatus.updateOne(
+          {
+            name: nameID
+          },
+          {
+            $set: {
+              status: EncodingStatus.Success
+            },
+            $currentDate: {
+              updated_at: true
+            }
+          }
+        )
+      } catch (error) {
+        console.log('Encode Video Error: ' + error)
+        await databaseService.videoStatus
+          .updateOne(
+            {
+              name: nameID
+            },
+            {
+              $set: {
+                status: EncodingStatus.Failed
+              },
+              $currentDate: {
+                updated_at: true
+              }
+            }
+          )
+          .catch((err) => {
+            console.log('Update Video Status Error: ' + err)
+          })
+      }
+      this.encoding = false
+      this.processEncode()
+    } else {
+      console.log('Encode Video Queue Empty')
+    }
+  }
+}
+const queue = new Queue()
 class MediaService {
   async uploadImage(req: Request) {
     const files = await handleUploadImage(req) // hàm này giúp lưu ảnh ở temp để tiến hành xử lý
@@ -53,11 +138,18 @@ class MediaService {
           url: isProduction
             ? `${process.env.HOST}/static/video/${file.newFilename}`
             : `http://localhost:${process.env.PORT}/static/video/${file.newFilename}`,
-          type: MediaType.Video
+          type: MediaType.HLS
         }
       })
     )
     return result
+  }
+
+  async getVideoStatus(id: string) {
+    const db = await databaseService.videoStatus.findOne({
+      name: id
+    })
+    return db
   }
 }
 const mediaService = new MediaService()

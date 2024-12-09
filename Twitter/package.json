@@ -18,6 +18,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/nanoid": "^2.1.0",
     "@types/node": "^22.5.4",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
     "@typescript-eslint/parser": "^8.5.0",
@@ -48,6 +49,7 @@
     "mine": "^0.1.0",
     "minimist": "^1.2.8",
     "mongodb": "^6.9.0",
+    "nanoid": "^5.0.9",
     "sharp": "^0.33.5",
     "zx": "^8.2.4"
   },

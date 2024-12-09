@@ -85,3 +85,13 @@ export const serveVideoStreamController = (req: Request, res: Response, next: Ne
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send('Error streaming video');
   });
 };
+
+export const videoStatusMediaController = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params
+  const result = await mediaService.getVideoStatus(id as string)
+  res.json({
+    status:
+      result?.status == 0 ? 'Pending' : result?.status == 1 ? 'Processing' : result?.status == 2 ? 'Success' : 'Failed',
+    result: result !== null ? result : "Don't have this video"
+  })
+}
