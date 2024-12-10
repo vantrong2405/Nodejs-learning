@@ -76,3 +76,21 @@ export const USERS_MESSAGES = {
   REFRESH_TOKEN_SUCCESS: 'Refresh token success',
   DELETE_DB_SUCCESS: 'Delete db success',
 } as const
+
+
+export const TWEET_MESSAGES = {
+  INVALID_TYPE: 'Invalid type',
+  INVALID_AUDIENCE: 'Invalid audience',
+  PARENT_ID_MUST_BE_A_VALID_TWEET_ID: 'Parent id must be a valid tweet id',
+  PARENT_ID_MUST_BE_NULL: 'Parent id must be null',
+  CONTENT_MUST_BE_A_STRING: 'Content must be a string',
+  CONTENT_MUST_BE_A_NON_EMPTY_STRING: 'Content must be a non empty string',
+  CONTENT_MUST_BE_A_EMPTY_STRING: 'Content must be a empty string',
+  TWEET_NOT_FOUND: 'Tweet not found',
+  HASHTAGS_MUST_BE_AN_ARRAY: 'Hashtags must be an array',
+  HASHTAGS_MUST_BE_STRING_ARRAY: 'Hashtags must be string array',
+  MENTIONS_MUST_BE_USER_ID_ARRAY: 'Mentions must be user id array',
+  MEDIA_MUST_BE_AN_ARRAY: 'Media must be an array',
+  MEDIA_MUST_BE_STRING_ARRAY: 'Media must be string array',
+  MEDIA_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Media must be an array of media object',
+} as const
