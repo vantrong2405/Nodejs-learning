@@ -15,6 +15,7 @@ likeRouter.delete(
   '/tweet/:tweet_id',
   accessTokenValidator,
   verifiedUserValidator,
+  tweetIDValidator,
   wrapRequestHandler(unlikeTweetController)
 )
 export default likeRouter

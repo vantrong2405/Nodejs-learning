@@ -17,6 +17,7 @@ bookmarkRouter.delete(
   '/tweet/:tweet_id',
   accessTokenValidator,
   verifiedUserValidator,
+  tweetIDValidator,
   wrapRequestHandler(unBookmarkTweetController)
 )
 export default bookmarkRouter
