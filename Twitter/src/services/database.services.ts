@@ -6,6 +6,7 @@ import RefreshToken from '~/models/schemas/RefreshToken.schema';
 import Follower from '~/models/schemas/Follower.schema';
 import { VideoStatus } from '~/models/schemas/VideoStatus.schema';
 import Tweet from '~/models/schemas/Tweets.schema';
+import Hashtag from '~/models/schemas/Hashtag.schema';
 dotenv.config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@twitter.hmuyl.mongodb.net/?retryWrites=true&w=majority&appName=Twitter`;
 
@@ -45,6 +46,10 @@ class DatabaseService {
 
   get tweet(): Collection<Tweet> {
     return this.db.collection(process.env.DB_TWEETS_COLLECTiON as string)
+  }
+
+  get hashtag(): Collection<Hashtag> {
+    return this.db.collection(process.env.DB_HASHTAG_COLLECTION as string)
   }
 
   async indexeUser() {

@@ -79,6 +79,7 @@ export const USERS_MESSAGES = {
 
 
 export const TWEET_MESSAGES = {
+  CREATE_TWEET_SUCCESS: 'Create tweet success',
   INVALID_TYPE: 'Invalid type',
   INVALID_AUDIENCE: 'Invalid audience',
   PARENT_ID_MUST_BE_A_VALID_TWEET_ID: 'Parent id must be a valid tweet id',
