@@ -2,7 +2,10 @@ import { checkSchema } from 'express-validator'
 import { isEmpty } from 'lodash'
 import { ObjectId } from 'mongodb'
 import { MediaType, TweetAudience, TweetType } from '~/constants/enum'
+import HTTP_STATUS from '~/constants/httpStatus'
 import { TWEET_MESSAGES } from '~/constants/message'
+import { ErrorWithStatus } from '~/models/Errors'
+import databaseService from '~/services/database.services'
 import { numberEnumToArray } from '~/utils/other'
 import { validate } from '~/utils/validation'
 const tweetType = numberEnumToArray(TweetType)
@@ -110,4 +113,26 @@ export const createTweetValidator = validate(
       }
     }
   })
+)
+
+export const tweetIDValidator = validate(
+  checkSchema(
+    {
+      tweet_id: {
+        isMongoId: {
+          errorMessage: TWEET_MESSAGES.INVALID_TWEET_ID
+        }, custom: {
+          options: async (value, { req }) => {
+            const exists = await databaseService.tweet.findOne({
+              _id: new ObjectId(value)
+            })
+            if (!exists) {
+              throw new ErrorWithStatus({ status: HTTP_STATUS.NOTFOUND, message: TWEET_MESSAGES.TWEET_NOT_FOUND })
+            }
+          }
+        }
+      }
+    },
+    ['params', 'body']
+  )
 )

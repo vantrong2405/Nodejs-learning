@@ -17,13 +17,13 @@ class TweetService {
     return hashtagDocuments.map((hashtag) => (hashtag as WithId<Hashtag>)._id)
   }
   createTweet = async (body: TweetRequestBody, user_id: string) => {
-    const hashtag = await this.checkAndCreateHashtags(body.hashtags)
+    const hashtags = await this.checkAndCreateHashtags(body.hashtags)
     const result = await databaseService.tweet.insertOne(
       new Tweet({
         audience: body.audience,
         content: body.content,
         mentions: body.mentions,
-        hashtags: hashtag,
+        hashtags,
         medias: body.medias,
         parent_id: body.parent_id,
         type: body.type,

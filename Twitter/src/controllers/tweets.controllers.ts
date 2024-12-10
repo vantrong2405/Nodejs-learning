@@ -1,6 +1,6 @@
 import { NextFunction, Response, Request } from "express"
 import { TWEET_MESSAGES } from "~/constants/message"
-import tweetServices from "~/services/tweet.services"
+import tweetServices from "~/services/tweets.services"
 
 export const createTweetController = async (req: Request, res: Response, next: NextFunction) => {
 

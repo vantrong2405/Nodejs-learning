@@ -7,6 +7,8 @@ import Follower from '~/models/schemas/Follower.schema';
 import { VideoStatus } from '~/models/schemas/VideoStatus.schema';
 import Tweet from '~/models/schemas/Tweets.schema';
 import Hashtag from '~/models/schemas/Hashtag.schema';
+import Bookmark from '~/models/schemas/Bookmark.schema';
+import Like from '~/models/schemas/Like.schema';
 dotenv.config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@twitter.hmuyl.mongodb.net/?retryWrites=true&w=majority&appName=Twitter`;
 
@@ -50,6 +52,14 @@ class DatabaseService {
 
   get hashtag(): Collection<Hashtag> {
     return this.db.collection(process.env.DB_HASHTAG_COLLECTION as string)
+  }
+
+  get bookmark(): Collection<Bookmark> {
+    return this.db.collection(process.env.DB_BOOKMARK_COLLECTION as string)
+  }
+
+  get like(): Collection<Like> {
+    return this.db.collection(process.env.DB_LIKE_COLLECTION as string)
   }
 
   async indexeUser() {

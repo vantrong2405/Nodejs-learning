@@ -8,6 +8,8 @@ import { UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO
 import staticRoutes from '~/routes/statics.router';
 import { initFolder } from '~/utils/file';
 import TweetRouter from '~/routes/tweets.router';
+import bookmarkRouter from '~/routes/bookmarks.router';
+import likeRouter from '~/routes/likes.router';
 
 config()
 initFolder(UPLOAD_IMAGE_DIR)
@@ -29,6 +31,8 @@ app.use('/medias', mediasRouter)
 app.use('/static', staticRoutes)
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR)) // tự độn phục vụ cho các tệp chứa trong UPLOAD_VIDEO_DIR. nếu name video có trong folder này
 app.use('/tweet', TweetRouter)
+app.use('/bookmarks', bookmarkRouter)
+app.use('/likes', likeRouter)
 // default error handler
 app.use(defaultErrorHandler)
 

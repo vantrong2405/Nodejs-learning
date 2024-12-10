@@ -1,6 +1,6 @@
 import express from 'express'
 import { createTweetController } from '~/controllers/tweets.controllers'
-import { createTweetValidator } from '~/middlewares/tweet.middleware'
+import { createTweetValidator } from '~/middlewares/tweets.middleware'
 import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 const TweetRouter = express.Router()
