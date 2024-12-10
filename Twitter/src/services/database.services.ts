@@ -77,12 +77,6 @@ class DatabaseService {
       this.refreshTokens.createIndex({ exp: 1 }, { expireAfterSeconds: 0 })
     }
   }
-  async indexVideoStatus() {
-    const exists = await this.videoStatus.indexExists(['name_1'])
-    if (!exists) {
-      this.videoStatus.createIndex({ name: 1 })
-    }
-  }
   async indexFollowers() {
     const exists = await this.followers.indexExists(['user_id_1_followed_user_id_1'])
     if (!exists) {

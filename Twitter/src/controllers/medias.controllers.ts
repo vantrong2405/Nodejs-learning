@@ -95,21 +95,19 @@ export const videoStatusMediaController = async (req: Request, res: Response, ne
     result: result !== null ? result : "Don't have this video"
   })
 }
-
 export const serveM3U8Controller = (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params
   return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR + '/', id, 'master.m3u8'), (err) => {
     if (err) {
-      return res.status(HTTP_STATUS.NOTFOUND).send('Not Found !!!')
+      res.status(HTTP_STATUS.NOTFOUND).send('Not Found !!!')
     }
   })
 }
-
 export const serveSegmentController = (req: Request, res: Response, next: NextFunction) => {
   const { id, v, segment } = req.params
   return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR + '/', id, v, segment), (err) => {
     if (err) {
-      return res.status(HTTP_STATUS.NOTFOUND).send('Not Found !!!')
+      res.status(HTTP_STATUS.NOTFOUND).send('Not Found !!!')
     }
   })
 }
