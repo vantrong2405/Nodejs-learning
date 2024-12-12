@@ -83,6 +83,13 @@ class DatabaseService {
       this.followers.createIndex({ user_id: 1, followed_user_id: 1 })
     }
   }
+
+  async indexVideoStatus() {
+    const exists = await this.videoStatus.indexExists(['name_1'])
+    if (!exists) {
+      this.videoStatus.createIndex({ name: 1 })
+    }
+  }
 }
 
 const databaseService = new DatabaseService()

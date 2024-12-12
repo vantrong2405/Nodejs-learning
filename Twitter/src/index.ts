@@ -22,6 +22,7 @@ databaseService.connect()
     databaseService.indexeUser()
     databaseService.indexRefreshToken()
     databaseService.indexFollowers()
+    databaseService.indexVideoStatus()
   })
 const app = express();
 const port = process.env.PORT || 4000
