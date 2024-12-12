@@ -10,19 +10,16 @@ import { initFolder } from '~/utils/file';
 import TweetRouter from '~/routes/tweets.router';
 import bookmarkRouter from '~/routes/bookmarks.router';
 import likeRouter from '~/routes/likes.router';
-import { MongoClient } from 'mongodb';
 
 config()
-initFolder(UPLOAD_IMAGE_DIR)
-initFolder(UPLOAD_IMAGE_TEMP_DIR)
-initFolder(UPLOAD_VIDEO_DIR)
-initFolder(UPLOAD_VIDEO_TEMP_DIR)
+initFolder([UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR])
 databaseService.connect()
   .then(() => {
     databaseService.indexeUser()
     databaseService.indexRefreshToken()
     databaseService.indexFollowers()
     databaseService.indexVideoStatus()
+    databaseService.indexFollowers()
   })
 const app = express();
 const port = process.env.PORT || 4000

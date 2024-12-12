@@ -22,6 +22,7 @@ class Queue {
     this.item = []
     this.encoding = false
   }
+
   async enqueue(item: string) {
     this.item.push(item)
     const nameID = getNameFromFullName(item.split('/').pop() as string)
@@ -33,6 +34,7 @@ class Queue {
     )
     this.processEncode()
   }
+  
   async processEncode() {
     if (this.encoding) return
     if (this.item.length > 0) {
@@ -117,6 +119,7 @@ class MediaService {
     }))
     return result
   }
+
   async uploadVideo(req: Request) {
     const files = await handleUploadVideo(req)
     const result = files.map((file) => {
@@ -130,6 +133,7 @@ class MediaService {
     })
     return result
   }
+
   async uploadVideoHLS(req: Request) {
     const files = await handleUploadVideo(req)
     const result = await Promise.all(

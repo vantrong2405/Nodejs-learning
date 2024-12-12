@@ -1,4 +1,3 @@
-import { exec } from 'child_process'
 import path from 'path'
 
 const MAXIMUM_BITRATE_720P = 5 * 10 ** 6 // 5Mbps

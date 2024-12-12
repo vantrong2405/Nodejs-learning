@@ -1,6 +1,6 @@
 import { NextFunction, Response, Request } from "express";
 import path from "path";
-import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR } from "~/constants/dir";
+import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from "~/constants/dir";
 import HTTP_STATUS from "~/constants/httpStatus";
 import { USERS_MESSAGES } from "~/constants/message";
 import mediaService from "~/services/medias.services";

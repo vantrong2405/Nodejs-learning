@@ -385,3 +385,13 @@ export const changePasswordValidator = validate(checkSchema({
     }
   }
 }, ['body']))
+
+
+export const isUserLoginValidator = (middleware: (req: Request, res: Response, next: NextFunction) => void) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (req.header('Authorization')) {
+      return middleware(req, res, next)
+    }
+    next()
+  }
+}

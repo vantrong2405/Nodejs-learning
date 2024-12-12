@@ -1,14 +1,16 @@
 import path from "path"
 import fs from "fs";
-import { UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR } from "~/constants/dir";
+import { UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR } from "~/constants/dir";
 import formidable, { File } from "formidable";
 import { IncomingMessage } from "http";
 
-export const initFolder = (pathFolder: string) => {
-  const uploadDir = path.resolve(pathFolder)
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true })
-  }
+export const initFolder = (pathFolderArray: string[]) => {
+  pathFolderArray.map((folder) => {
+    const uploadDir = path.resolve(folder)
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true })
+    }
+  })
 }
 
 export const handleUploadImage = async (req: any) => {

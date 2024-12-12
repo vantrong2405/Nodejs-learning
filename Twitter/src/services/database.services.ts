@@ -11,8 +11,6 @@ import Bookmark from '~/models/schemas/Bookmark.schema';
 import Like from '~/models/schemas/Like.schema';
 dotenv.config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@twitter.hmuyl.mongodb.net/?retryWrites=true&w=majority&appName=Twitter`;
-
-
 class DatabaseService {
   private client: MongoClient
   private db: Db
@@ -63,11 +61,11 @@ class DatabaseService {
   }
 
   async indexeUser() {
-    const exists = await this.users.indexExists(['email_1', 'email_1_password_1', 'username_1'])
+    const exists = await this.users.indexExists(['email_1', 'email_1_password_1'])
     if (!exists) {
       this.users.createIndex({ email: 1, password: 1 })
       this.users.createIndex({ email: 1 }, { unique: true })
-      this.users.createIndex({ username: 1 }, { unique: true })
+      this.users.createIndex({ username: 1 })
     }
   }
   async indexRefreshToken() {
@@ -77,17 +75,22 @@ class DatabaseService {
       this.refreshTokens.createIndex({ exp: 1 }, { expireAfterSeconds: 0 })
     }
   }
+  async indexVideoStatus() {
+    const exists = await this.videoStatus.indexExists(['name_1'])
+    if (!exists) {
+      this.videoStatus.createIndex({ name: 1 })
+    }
+  }
   async indexFollowers() {
     const exists = await this.followers.indexExists(['user_id_1_followed_user_id_1'])
     if (!exists) {
       this.followers.createIndex({ user_id: 1, followed_user_id: 1 })
     }
   }
-
-  async indexVideoStatus() {
-    const exists = await this.videoStatus.indexExists(['name_1'])
+  async indexTweet() {
+    const exists = await this.tweet.indexExists(['content_text'])
     if (!exists) {
-      this.videoStatus.createIndex({ name: 1 })
+      this.tweet.createIndex({ content: 'text' }, { default_language: 'none' })
     }
   }
 }

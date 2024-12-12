@@ -12,6 +12,7 @@ import Follower from "~/models/schemas/Follower.schema";
 import axios from 'axios';
 import { ErrorWithStatus } from "~/models/Errors";
 import HTTP_STATUS from "~/constants/httpStatus";
+import { random } from "lodash";
 
 config()
 class UserService {
@@ -28,6 +29,7 @@ class UserService {
       }
     })
   }
+
   private signRefreshToken({ user_id, verify, exp }: { user_id: string, verify: UserVerifyStatus, exp?: number }) {
     if (exp) {
       return signToken({
@@ -68,24 +70,36 @@ class UserService {
   }
   async register(payload: RegisterReqBody) {
     const user_id = new ObjectId()
-    const email_verify_token = await this.signEmailVerifyToken({ user_id: user_id.toString(), verify: UserVerifyStatus.Unverified })
+    const email_verify_token = await this.signEmailVerifyToken({
+      user_id: (user_id as ObjectId).toString(),
+      verify: UserVerifyStatus.Unverified
+    })
     await databaseService.users.insertOne(
       new User({
         ...payload,
         _id: user_id,
-        date_of_birth: new Date(payload.date_of_birth), //convert ISO -> date
+        date_of_birth: new Date(payload.date_of_birth),
         password: hashPassword(payload.password),
-        email_verify_token
+        email_verify_token,
+        username: payload.email.split('@')[0] + random(1000, 9999)
       })
     )
-
-    const [access_token, refresh_token] = await this.signAccessAndRefreshToken({ user_id: user_id.toString(), verify: UserVerifyStatus.Unverified })
+    const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
+      user_id: (user_id as ObjectId).toString(),
+      verify: UserVerifyStatus.Unverified
+    })
     const { iat, exp } = await this.decodeRefreshToken(refresh_token)
-    await databaseService.refreshTokens.insertOne(new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp }))
-
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({
+        user_id: new ObjectId(user_id),
+        token: refresh_token,
+        iat,
+        exp
+      })
+    )
     return {
-      access_token,// trả về cả trường vẫn value là access_token và refresh_token 
-      refresh_token,
+      access_token,
+      refresh_token
     }
   }
 
@@ -238,8 +252,8 @@ class UserService {
     return {
       message: USERS_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS
     }
-
   }
+
   private signEmailVerifyToken({ user_id, verify }: { user_id: string, verify: UserVerifyStatus }) {
     return signToken({
       payload: {
@@ -253,6 +267,7 @@ class UserService {
       }
     })
   }
+
   private signForgotPasswordToken({ user_id, verify }: { user_id: string, verify: UserVerifyStatus }) {
     return signToken({
       payload: {
@@ -388,6 +403,7 @@ class UserService {
       message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS
     }
   }
+
   async refreshToken({ user_id, verify, refresh_token, exp }: { user_id: string, verify: UserVerifyStatus, refresh_token: string, exp: number }) {
     const [new_access_token, new_refresh_token] = await Promise.all(
       [
