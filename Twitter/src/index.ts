@@ -10,6 +10,7 @@ import { initFolder } from '~/utils/file';
 import TweetRouter from '~/routes/tweets.router';
 import bookmarkRouter from '~/routes/bookmarks.router';
 import likeRouter from '~/routes/likes.router';
+// import '~/utils/faker'
 
 config()
 initFolder([UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR])

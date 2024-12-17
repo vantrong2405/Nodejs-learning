@@ -1,6 +1,7 @@
 import { TweetAudience, TweetType } from "~/constants/enum"
 import { Media } from "~/models/Other"
 import { ParamsDictionary, Query } from "express-serve-static-core"
+import { ObjectId } from "mongodb"
 
 export interface TweetRequestBody {
   type: TweetType
@@ -10,6 +11,7 @@ export interface TweetRequestBody {
   hashtags: string[]
   mentions: string[]
   medias: Media[]
+  user_id?: ObjectId
 }
 
 export interface ITweetChildrenRequest {
