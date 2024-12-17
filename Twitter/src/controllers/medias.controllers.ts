@@ -63,7 +63,7 @@ export const serveVideoStreamController = (req: Request, res: Response, next: Ne
   if (!fs.existsSync(videoPath)) res.status(HTTP_STATUS.NOTFOUND).send('Video not found');
   // Dung lượng video (bytes)
   const videoSize = fs.statSync(videoPath).size;
-  // Dung lượng video cho mỗi phân đoạn stream (30MB)
+  // Dung lượng vdeo cho mỗi phân đoạn stream (30MB)
   const chunkSize = 30 * 10 ** 6;
   // Lấy giá trị byte bắt đầu từ headers Range (vd: bytes=0-1000000)
   const start = Number((range as string).replace(/\D/g, ''))

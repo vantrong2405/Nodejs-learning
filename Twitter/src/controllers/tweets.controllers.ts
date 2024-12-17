@@ -1,5 +1,8 @@
 import { NextFunction, Response, Request } from "express"
+import { TweetType } from "~/constants/enum"
 import { TWEET_MESSAGES } from "~/constants/message"
+import { ITweetChildrenRequest, TweetParam, TweetQuery } from "~/models/requests/Tweet.request"
+import Tweet from "~/models/schemas/Tweets.schema"
 import tweetServices from "~/services/tweets.services"
 
 export const createTweetController = async (req: Request, res: Response, next: NextFunction) => {
@@ -11,9 +14,40 @@ export const createTweetController = async (req: Request, res: Response, next: N
   })
 }
 export const getTweetController = async (req: Request, res: Response, next: NextFunction) => {
-
+  const result = await tweetServices.increaseView(req.params.tweet_id, req.decoded_authorization?.user_id)
+  const tweet = {
+    ...req.tweet,
+    guest_view: result.guest_views,
+    user_view: result.user_views,
+    views: result.guest_views + result.user_views,
+    updated_at: result.updated_at
+  }
   res.json({
     message: TWEET_MESSAGES.GET_TWEET_SUCCESS,
-    result: 'ok'
+    result: tweet
+  })
+}
+
+export const getTweetChildrenController = async (req: Request<TweetParam, any, any, TweetQuery>, res: Response, next: NextFunction) => {
+  const limit = Number(req.query.limit)
+  const page = Number(req.query.page)
+  const tweet_type = Number(req.query.tweet_type)
+  const user_id = req.decoded_authorization?.user_id
+  const { total, tweets } = await tweetServices.getTweetChildren({
+    tweet_id: req.params.tweet_id,
+    tweet_type,
+    limit,
+    page,
+    user_id
+  })
+  res.json({
+    message: TWEET_MESSAGES.GET_TWEET_CHILDREN_SUCCESS,
+    result: {
+      tweets,
+      total,
+      tweet_type,
+      limit,
+      total_page: Math.ceil(total / limit)
+    }
   })
 }

@@ -6,6 +6,7 @@ import { MediaType, TweetAudience, TweetType, UserVerifyStatus } from '~/constan
 import HTTP_STATUS from '~/constants/httpStatus'
 import { TWEET_MESSAGES, USERS_MESSAGES } from '~/constants/message'
 import { ErrorWithStatus } from '~/models/Errors'
+import Tweet from '~/models/schemas/Tweets.schema'
 import databaseService from '~/services/database.services'
 import { wrapRequestHandler } from '~/utils/handlers'
 import { numberEnumToArray } from '~/utils/other'
@@ -125,9 +126,121 @@ export const tweetIDValidator = validate(
           errorMessage: TWEET_MESSAGES.INVALID_TWEET_ID
         }, custom: {
           options: async (value, { req }) => {
-            const tweet = await databaseService.tweet.findOne({
-              _id: new ObjectId(value)
-            })
+            const [tweet] = await databaseService.tweet.aggregate<Tweet>(
+              [
+                {
+                  '$match': {
+                    '_id': new ObjectId(value)
+                  }
+                }, {
+                  '$lookup': {
+                    'from': 'hashtags',
+                    'localField': 'hashtags',
+                    'foreignField': '_id',
+                    'as': 'hashtags'
+                  }
+                }, {
+                  '$lookup': {
+                    'from': 'users',
+                    'localField': 'mentions',
+                    'foreignField': '_id',
+                    'as': 'mentions'
+                  }
+                }, {
+                  '$addFields': {
+                    'mentions': {
+                      '$map': {
+                        'input': '$mentions',
+                        'as': 'mention',
+                        'in': {
+                          '_id': '$$mention._id',
+                          'name': '$$mention.name',
+                          'username': '$$mention.username',
+                          'email': '$$mention.email'
+                        }
+                      }
+                    }
+                  }
+                }, {
+                  '$lookup': {
+                    'from': 'bookmarks',
+                    'localField': '_id',
+                    'foreignField': 'tweet_id',
+                    'as': 'bookmarks'
+                  }
+                }, {
+                  '$lookup': {
+                    'from': 'likes',
+                    'localField': '_id',
+                    'foreignField': 'tweet_id',
+                    'as': 'likes'
+                  }
+                }, {
+                  '$lookup': {
+                    'from': 'tweets',
+                    'localField': '_id',
+                    'foreignField': 'parent_id',
+                    'as': 'tweet_children'
+                  }
+                }, {
+                  '$addFields': {
+                    'bookmarks': {
+                      '$size': '$bookmarks'
+                    },
+                    'likes': {
+                      '$size': '$likes'
+                    },
+                    'retweet_count': {
+                      '$size': {
+                        '$filter': {
+                          'input': '$tweet_children',
+                          'as': 'item',
+                          'cond': {
+                            '$eq': [
+                              '$$item.type', 1
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    'commment_count': {
+                      '$size': {
+                        '$filter': {
+                          'input': '$tweet_children',
+                          'as': 'item',
+                          'cond': {
+                            '$eq': [
+                              '$$item.type', 2
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    'quote_count': {
+                      '$size': {
+                        '$filter': {
+                          'input': '$tweet_children',
+                          'as': 'item',
+                          'cond': {
+                            '$eq': [
+                              '$$item.type', 3
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    'views': {
+                      '$add': [
+                        '$user_views', '$guest_views'
+                      ]
+                    }
+                  }
+                }, {
+                  '$project': {
+                    'tweet_children': 0
+                  }
+                }
+              ]).toArray()
             if (!tweet) {
               throw new ErrorWithStatus({ status: HTTP_STATUS.NOTFOUND, message: TWEET_MESSAGES.TWEET_NOT_FOUND })
             }
@@ -180,4 +293,39 @@ export const audienceValidator = wrapRequestHandler(
     }
     next()
   }
+)
+
+export const getTweetChildrenValidator = validate(
+  checkSchema({
+    tweet_type: {
+      isIn: {
+        options: [TweetType],
+        errorMessage: TWEET_MESSAGES.INVALID_TYPE
+      }
+    },
+    limit: {
+      isNumeric: true,
+      custom: {
+        options: (value, { req }) => {
+          const num = Number(value)
+          if (num > 100 && num < 0) {
+            throw new Error(' 1<= limit <=100 ')
+          }
+          return true
+        }
+      }
+    },
+    page: {
+      isNumeric: true,
+      custom: {
+        options: (value, { req }) => {
+          const num = Number(value)
+          if (num < 1) {
+            throw new Error('Page >= 1')
+          }
+          return true
+        }
+      }
+    }
+  }, ['query'])
 )
