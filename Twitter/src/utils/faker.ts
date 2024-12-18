@@ -10,7 +10,7 @@ import User from '~/models/schemas/User.schema'
 import { TweetAudience, TweetType, UserVerifyStatus } from '~/constants/enum'
 import Follower from '~/models/schemas/Follower.schema'
 const PASSWORD = 'vanwtrong@@'
-const MYID = new ObjectId('65631e6bc474dbe4b3387fbf')
+const MYID = new ObjectId('675ab047acf7179673a7496d')
 const USER_COUNT = 50
 const createRandomUser = () => {
   const user: RegisterReqBody = {
@@ -87,9 +87,9 @@ const insertMultipleTweets = async (ids: ObjectId[]) => {
   return result
 }
 insertMultipleUsers(user).then((ids) => {
-  console.log('ids', ids)
-  insertMultipleTweets(ids)
+  // console.log('ids', ids)
+  // insertMultipleTweets(ids)
   followMultipleUsers(new ObjectId(MYID), ids)
   console.log('Faker Done')
-  createRandomTweet(new ObjectId(MYID))
+  // createRandomTweet(new ObjectId(MYID))
 })

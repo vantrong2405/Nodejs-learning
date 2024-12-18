@@ -1,7 +1,8 @@
 import { NextFunction, Response, Request } from "express"
+import { ParamsDictionary } from "express-serve-static-core"
 import { TweetType } from "~/constants/enum"
 import { TWEET_MESSAGES } from "~/constants/message"
-import { ITweetChildrenRequest, TweetParam, TweetQuery } from "~/models/requests/Tweet.request"
+import { ITweetChildrenRequest, Pagination, TweetParam, TweetQuery } from "~/models/requests/Tweet.request"
 import Tweet from "~/models/schemas/Tweets.schema"
 import tweetServices from "~/services/tweets.services"
 
@@ -48,6 +49,26 @@ export const getTweetChildrenController = async (req: Request<TweetParam, any, a
       tweet_type,
       limit,
       total_page: Math.ceil(total / limit)
+    }
+  })
+}
+
+export const getNewfeedsController = async (req: Request<ParamsDictionary, any, any, Pagination>, res: Response, next: NextFunction) => {
+  const user_id = req.decoded_authorization.user_id
+  const limit = Number(req.query.limit)
+  const page = Number(req.query.page)
+  const result = await tweetServices.getNewFeeds({
+    user_id,
+    limit,
+    page
+  })
+  res.json({
+    message: TWEET_MESSAGES.GET_NEWFEEDS_SUCCESS,
+    result: {
+      tweets: result.tweets,
+      limit,
+      page,
+      total_page: Math.ceil(result.total / limit)
     }
   })
 }
