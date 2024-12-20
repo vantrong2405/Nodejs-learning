@@ -10,6 +10,7 @@ import { initFolder } from '~/utils/file';
 import TweetRouter from '~/routes/tweets.router';
 import bookmarkRouter from '~/routes/bookmarks.router';
 import likeRouter from '~/routes/likes.router';
+import searchRouter from '~/routes/searchs.router';
 // import '~/utils/faker'
 
 config()
@@ -21,6 +22,7 @@ databaseService.connect()
     databaseService.indexFollowers()
     databaseService.indexVideoStatus()
     databaseService.indexFollowers()
+    databaseService.indexTweet()
   })
 const app = express();
 const port = process.env.PORT || 4000
@@ -32,6 +34,7 @@ app.use('/static/video', express.static(UPLOAD_VIDEO_DIR)) // tự động phụ
 app.use('/tweet', TweetRouter)
 app.use('/bookmarks', bookmarkRouter)
 app.use('/likes', likeRouter)
+app.use('/searchs', searchRouter)
 // default error handler
 app.use(defaultErrorHandler)
 

@@ -110,3 +110,11 @@ export const LIKE_MESSAGES = {
   LIKE_SUCCESS: 'Like successfully',
   UNLIKE_SUCCESS: 'Unlike successfully',
 } as const
+
+
+export const SEARCH_MESSAGES = {
+  CONTENT_MUST_BE_A_STRING: 'Content must be a string',
+  INVALID_MEDIA_TYPE: 'Invalid media type',
+  INVALID_PEOPLE_FOLLOW: 'Invalid people follow',
+  SUCCESS: 'Search successfully',
+} as const

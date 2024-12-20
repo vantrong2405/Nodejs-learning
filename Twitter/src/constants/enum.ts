@@ -30,6 +30,17 @@ export enum TweetType {
   Comment,
   QuoteTweet
 }
+
+export enum MediaQuery {
+  Image = 'image',
+  Video = 'video'
+}
+
+export enum PeopleFollow {
+  Anyone = '0',
+  Following = '1'
+}
+
 export enum TweetAudience {
   Everyone,
   TweetCircle
