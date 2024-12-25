@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
+import { GetConversationParams } from '~/models/requests/Conversation.request'
 import { TokenPayload } from '~/models/requests/User.requests'
 import conversationService from '~/services/conversations.services'
-export const getConversationController = async (req: Request, res: Response) => {
+export const getConversationController = async (req: Request<GetConversationParams, any, any, any>, res: Response) => {
   const receiver_id = req.params.receiverId
   const sender_id = (req.decoded_authorization as TokenPayload).user_id // thằng dang đăng nhập 
   const limit = Number(req.query.limit as string)

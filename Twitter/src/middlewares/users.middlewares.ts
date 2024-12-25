@@ -1,6 +1,6 @@
 import { error } from 'console';
 import { Request, Response, NextFunction } from 'express';
-import { checkSchema } from 'express-validator';
+import { checkSchema, ParamSchema } from 'express-validator';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
 import { bioSchema, confirmPasswordSchema, dateOfBirthSchema, emailSchema, imageSchema, locationSchema, nameSchema, passwordSchema, usernameSchema, userSchema, websiteSchema } from '~/@types/type.schema';
@@ -395,3 +395,29 @@ export const isUserLoginValidator = (middleware: (req: Request, res: Response, n
     next()
   }
 }
+
+const userIdSchema: ParamSchema = {
+  custom: {
+    options: async (value: string, { req }) => {
+      if (!ObjectId.isValid(value)) {
+        throw new ErrorWithStatus({
+          message: USERS_MESSAGES.INVALID_USER_ID,
+          status: HTTP_STATUS.NOTFOUND
+        })
+      }
+      const followed_user = await databaseService.users.findOne({
+        _id: new ObjectId(value)
+      })
+      if (followed_user === null) {
+        throw new ErrorWithStatus({
+          message: USERS_MESSAGES.USER_NOT_FOUND,
+          status: HTTP_STATUS.NOTFOUND
+        })
+      }
+    }
+  }
+}
+
+export const getConversationValidator = validate(checkSchema({
+  receiver_id: userIdSchema,
+}))                                             
