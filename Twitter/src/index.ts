@@ -81,8 +81,7 @@ io.on("connection", (socket) => {
     })
 
     const result = await databaseService.conversation.insertOne(conversation)
-    conversation._id = result.insertedId
-    console.log("🚀 ~ socket.on ~ conversation._id:", conversation._id)
+    conversation._id = result.insertedId                                              
     // console.log("🚀 ~ socket.on ~ receiver_socket_id:", users[data.to])
     // Gửi ngược chỗ này 
     socket.to(receiver_socket_id).emit('receive_message', { // gửi tin nhắn đến người nhận
