@@ -14,7 +14,7 @@ export default function Chat() {
   }
 ];
   const [value, setValue] = useState('');
-  const [messages, setMessages] = useState([]);
+  const [conversations, setConversations] = useState([]); // dùng để render message
   const [receiver , setReceiver] = useState('');
 
   useEffect(
@@ -23,14 +23,12 @@ export default function Chat() {
         _id: profile._id,
       };
       socket.connect();
-      socket.on('receive private message', data => {
-        const content = data.content;
-        setMessages(messages => [
-          ...messages,
-          {
-            content,
-            isSender: false,
-          },
+      socket.on('receive_message', data => {
+      console.log("🚀 ~ Chat ~ data:", data)
+        const {payload} = data 
+        setConversations(conversations => [
+          ...conversations,
+          payload
         ]);
       });
       return () => {
@@ -40,19 +38,41 @@ export default function Chat() {
     [profile._id],
   );
 
+  useEffect(()=>{
+    // if(!receiver) return
+    axios.get(`/conversations/receiver/${receiver || profile._id}`,{
+      baseURL: import.meta.env.VITE_API_URL,
+      headers : {
+        Authorization : 'Bearer ' + localStorage.getItem('access_token')
+      },
+      params:{
+        limit : 10 , 
+        page : 1
+      }
+    }).then(response=>{
+      console.log("🚀 ~ useEffect ~ response:", response)
+      setConversations(response.data.data)
+    })
+  },[receiver , profile._id])
+
   const handleSubmit = e => {
     e.preventDefault();
     if (!value.trim()) return;
+ 
 
-    socket.emit('receive private message', {
+    const conversation = {
       content: value,
-      to: receiver
+      sender_id: profile._id,
+      receiver_id: receiver, 
+    }
+    socket.emit('send_message', {
+      payload: conversation
     });
-    setMessages(messages => [
-      ...messages,
+    setConversations(conversations => [
+      ...conversations,
       {
-        content: value,
-        isSender: true,
+      ...conversation,
+      _id : new Date().getTime().toString()
       },
     ]);
 
@@ -89,15 +109,15 @@ export default function Chat() {
           </div>
         </div>
         <div className="flex-grow overflow-y-auto p-4 bg-gray-50 ">
-          {messages.map((message, index) =>
+          {conversations.map((message, index) =>
             <div
               key={index}
-              className={`flex mb-4 ${message.isSender
+              className={`flex mb-4 ${message.sender_id === profile._id
                 ? 'justify-end'
                 : 'justify-start'}`}
             >
               <div
-                className={`rounded-lg px-4 py-2 max-w-[80%] ${message.isSender
+                className={`rounded-lg px-4 py-2 max-w-[80%] ${message.sender_id === profile._id
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-100 text-gray-900'}`}
               >

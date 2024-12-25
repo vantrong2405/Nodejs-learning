@@ -14,6 +14,9 @@ import searchRouter from '~/routes/searchs.router';
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from 'cors'
+import { ObjectId } from 'mongodb';
+import Conversation from '~/models/schemas/Conversation.schema';
+import conversationRouter from '~/routes/conversation.router';
 // import '~/utils/faker'
 
 config()
@@ -41,6 +44,7 @@ app.use('/tweet', TweetRouter)
 app.use('/bookmarks', bookmarkRouter)
 app.use('/likes', likeRouter)
 app.use('/searchs', searchRouter)
+app.use('/conversations', conversationRouter)
 // default error handler
 app.use(defaultErrorHandler)
 
@@ -64,20 +68,31 @@ io.on("connection", (socket) => {
   users[user_id] = { // lấy key cha là : user_id
     socket_id: socket.id
   }
-  console.log("🚀 ~ io.on ~ users:", users)
-  socket.on('receive private message', (data) => {
-    const receiver_socket_id = users[data.to]?.socket_id  // tìm trong users là ra socket_id người nhận (data này là do có người gửi lên)
+  // console.log("🚀 ~ io.on ~ users:", users)
+  socket.on('send_message', async (data) => {
+    const { sender_id, receiver_id, content } = data.payload
+    const receiver_socket_id = users[receiver_id]?.socket_id  // tìm trong users là ra socket_id người nhận (data này là do có người gửi lên)
+    console.log("🚀 ~ socket.on ~ receiver_socket_id:", receiver_socket_id)
     if (!receiver_socket_id) return
-    console.log("🚀 ~ socket.on ~ receiver_socket_id:", users[data.to])
-    socket.to(receiver_socket_id).emit('receive private message', { // gửi tin nhắn đến người nhận
-      content: data.content,
-      from: user_id // người gửi là user_id
+    const conversation = new Conversation({
+      sender_id: new ObjectId(sender_id),
+      receiver_id: new ObjectId(receiver_id),
+      content: content
     })
+
+    const result = await databaseService.conversation.insertOne(conversation)
+    conversation._id = result.insertedId
+    console.log("🚀 ~ socket.on ~ conversation._id:", conversation._id)
+    // console.log("🚀 ~ socket.on ~ receiver_socket_id:", users[data.to])
+    // Gửi ngược chỗ này 
+    socket.to(receiver_socket_id).emit('receive_message', { // gửi tin nhắn đến người nhận
+      payload: conversation
+    })
+
   })
   socket.on("disconnect", () => {
     delete users[user_id] // xóa key của user_id trong users khi user disconnect
     console.log(`user ${socket.id} disconnected`);
-    console.log("🚀 ~ io.on ~ users:", users)
   })
 
 })

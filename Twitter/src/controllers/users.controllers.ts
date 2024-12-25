@@ -73,17 +73,29 @@ export const emailVerifyController = async (req: Request, res: Response, next: N
     result
   })
 }
+
 export const deleteDBController = async (req: Request, res: Response) => {
   try {
-    await databaseService.users.deleteMany({})
-    await databaseService.refreshTokens.deleteMany({})
+    await Promise.all([
+      // databaseService.users.deleteMany({}),
+      databaseService.refreshTokens.deleteMany({}),
+      databaseService.bookmark.deleteMany({}),
+      databaseService.conversation.deleteMany({}),
+      databaseService.hashtag.deleteMany({}),
+      databaseService.videoStatus.deleteMany({}),
+      databaseService.like.deleteMany({}),
+      databaseService.followers.deleteMany({}),
+      databaseService.tweet.deleteMany({}),
+    ]);
+
     res.json({
       message: USERS_MESSAGES.DELETE_DB_SUCCESS
-    })
+    });
   } catch (error) {
-    res.json(error)
+    console.error('Error deleting database:', error)
+    res.status(500).json({ message: 'Internal Server Error' });
   }
-}
+};
 
 export const resenVerifyEmailVerifyController = async (req: Request, res: Response, next: NextFunction) => {
   const { user_id } = req.decoded_authorization

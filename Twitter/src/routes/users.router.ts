@@ -21,12 +21,11 @@ userRouter.post('/reset-password', resetPasswordValidor, wrapRequestHandler(rese
 userRouter.put('/change-password', accessTokenValidator, verifiedUserValidator, changePasswordValidator, wrapRequestHandler(changePasswordController))
 userRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController))
 userRouter.patch('/me', accessTokenValidator, verifiedUserValidator, updateMeValidator, filterMiddleware<UpdateMeReqBody>(['name', 'date_of_birth', 'bio', 'location', 'website', 'username', 'avatar', 'cover_photo']), wrapRequestHandler(updateMeController))
-// Get profile form username
-userRouter.get('/:username', wrapRequestHandler(getUser))
 // twitter
 userRouter.post('/follow', accessTokenValidator, verifiedUserValidator, followValidator, wrapRequestHandler(followController))
 userRouter.delete('/follow/:user_id', accessTokenValidator, verifiedUserValidator, unfollowValidator, wrapRequestHandler(unfollowController))
-
 // delete full db
-userRouter.get('/delete-db', deleteDBController)
+userRouter.get('/delete-db', wrapRequestHandler(deleteDBController))
+// Get profile form username
+userRouter.get('/:username', wrapRequestHandler(getUser))
 export default userRouter
