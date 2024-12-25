@@ -24,6 +24,7 @@ const getOauthGoogleUrl = () => {
 function Home() {
   const isAuthenticated = Boolean(localStorage.getItem('access_token'))
   const oauthURL = getOauthGoogleUrl()
+  const profile = JSON.parse(localStorage.getItem('profile')) ||  {}
   const logout = () => {
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
@@ -46,7 +47,7 @@ function Home() {
       <div>
         {isAuthenticated ? (
           <div>
-            <p>Xin chào, bạn đã login thành công</p>
+            <p>Xin chào, bạn <strong>{profile.email}</strong> đã login thành công</p>
             <button onClick={logout}>Click để logout</button>
           </div>
         ) : (

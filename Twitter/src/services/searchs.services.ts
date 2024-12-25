@@ -52,7 +52,7 @@ class SearchService {
         }
       )
       .toArray()
-      // Có danh sách các id người dùng đã kb 
+    // Có danh sách các id người dùng đã kb 
     const ids = followed_user_ids.map((item) => item.followed_user_id)
     ids.push(new ObjectId(user_id))
     const [tweets, total] = await Promise.all([

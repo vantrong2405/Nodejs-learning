@@ -40,7 +40,7 @@ function Home() {
         </div>
       </div>
  <video controls width={500}>
-  <source src='http://localhost:4000/static/video-stream/8a937caa239aeb2468aece900.mp4' type='video/mp4'></source>
+  <source src='http://localhost:4000/static/video-stream/d68ea77e93052c59b723d2400.mp4' type='video/mp4'></source>
  </video>
       <h1>OAuth Google</h1>
       <div>

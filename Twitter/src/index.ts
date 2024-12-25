@@ -11,6 +11,9 @@ import TweetRouter from '~/routes/tweets.router';
 import bookmarkRouter from '~/routes/bookmarks.router';
 import likeRouter from '~/routes/likes.router';
 import searchRouter from '~/routes/searchs.router';
+import { createServer } from "http";
+import { Server } from "socket.io";
+import cors from 'cors'
 // import '~/utils/faker'
 
 config()
@@ -25,7 +28,10 @@ databaseService.connect()
     databaseService.indexTweet()
   })
 const app = express();
+const httpsServer = createServer(app);
+
 const port = process.env.PORT || 4000
+app.use(cors());
 app.use(express.json());// convert json -> data
 app.use('/users', userRouter)
 app.use('/medias', mediasRouter)
@@ -38,9 +44,47 @@ app.use('/searchs', searchRouter)
 // default error handler
 app.use(defaultErrorHandler)
 
-app.listen(port, () => {
+const io = new Server(httpsServer, {
+  cors: {
+    origin: 'http://localhost:3000',
+  }
+});
+
+
+const users: {
+  [key: string]: {
+    socket_id: string
+  }
+} = {}
+
+io.on("connection", (socket) => {
+  console.log(`user ${socket.id} connected`);
+  const user_id = socket.handshake.auth._id
+  // users là 1 object
+  users[user_id] = { // lấy key cha là : user_id
+    socket_id: socket.id
+  }
+  console.log("🚀 ~ io.on ~ users:", users)
+  socket.on('receive private message', (data) => {
+    const receiver_socket_id = users[data.to].socket_id // tìm trong users là ra socket_id người nhận (data này là do có người gửi lên)
+    console.log("🚀 ~ socket.on ~ receiver_socket_id:", users[data.to])
+    socket.to(receiver_socket_id).emit('receive private message', { // gửi tin nhắn đến người nhận
+      content: data.content,
+      from: user_id // người gửi là user_id
+    })
+  })
+  socket.on("disconnect", () => {
+    delete users[user_id] // xóa key của user_id trong users khi user disconnect
+    console.log(`user ${socket.id} disconnected`);
+    console.log("🚀 ~ io.on ~ users:", users)
+  })
+
+})
+
+httpsServer.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
+
 
 // const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@twitter.hmuyl.mongodb.net/?retryWrites=true&w=majority&appName=Twitter`;
 // const mgclient = new MongoClient(uri)
