@@ -163,3 +163,9 @@ export const changePasswordController = async (req: Request, res: Response, next
   const result = await userService.changePassword(user_id, new_password)
   res.json(result)
 }
+
+export const getUser = async (req: Request<ParamsDictionary>, res: Response, next: NextFunction) => {
+  const { username } = req.params
+  const result = await userService.getUser(username)
+  res.json(result)
+}

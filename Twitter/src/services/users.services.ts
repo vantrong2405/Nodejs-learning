@@ -420,6 +420,22 @@ class UserService {
       refresh_token: new_refresh_token
     }
   }
+
+  async getUser(username: string) {
+    const result = await databaseService.users.findOne(
+      { username },
+      {
+        projection: {
+          password: 0,
+          forgot_password_token: 0,
+          email_verify_token: 0,
+          created_at: 0,
+          updated_at: 0
+        }
+      }
+    )
+    return result
+  }
 }
 
 const userService = new UserService();  // tạo ra 1 instance của UserService        

@@ -66,7 +66,8 @@ io.on("connection", (socket) => {
   }
   console.log("🚀 ~ io.on ~ users:", users)
   socket.on('receive private message', (data) => {
-    const receiver_socket_id = users[data.to].socket_id // tìm trong users là ra socket_id người nhận (data này là do có người gửi lên)
+    const receiver_socket_id = users[data.to]?.socket_id  // tìm trong users là ra socket_id người nhận (data này là do có người gửi lên)
+    if (!receiver_socket_id) return
     console.log("🚀 ~ socket.on ~ receiver_socket_id:", users[data.to])
     socket.to(receiver_socket_id).emit('receive private message', { // gửi tin nhắn đến người nhận
       content: data.content,
