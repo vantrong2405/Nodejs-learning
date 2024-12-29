@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react';
 import socket from './socket';
 import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { accessToken, profile } from './utils';
 
 const LIMIT = 10
 const PAGE = 1 
 export default function Chat() {
-  const accessToken = localStorage.getItem('access_token')
-  const profile = JSON.parse(localStorage.getItem('profile')) || {}
   const usernames = [{
     name : 'user1',
     value : 'trongdn24052566',
@@ -104,7 +103,7 @@ export default function Chat() {
       };
     }
     
-  }, [accessToken , profile._id , receiver])  
+  }, [ receiver])  
 
   useEffect(() => {
     if (receiver) {

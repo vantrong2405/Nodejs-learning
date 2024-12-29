@@ -13,7 +13,6 @@ export const filterMiddleware = <T>(filterKeys: filterKeys<T>) => (req: Request,
 }
 
 export const verifyAccessToken = async (access_token: string, req?: Request) => {
-  console.log("🚀 ~ verifyAccessToken ~ access_token:", access_token)
   if (!access_token) {
     throw new ErrorWithStatus({
       message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
