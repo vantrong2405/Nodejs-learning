@@ -20,7 +20,7 @@ export const signToken = ({ payload, privateKey = process.env.JWT_SECRET as stri
 
 export const verifyToken = ({
   token,
-  secretOnPublicKey = process.env.JWT_SECRET as string
+  secretOnPublicKey = process.env.JWT_ACCESS_TOKEN_SECRET as string
 }: {
   token: string
   secretOnPublicKey?: string

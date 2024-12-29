@@ -6,26 +6,32 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 const LIMIT = 10
 const PAGE = 1 
 export default function Chat() {
-  const profile = JSON.parse(localStorage.getItem('profile')) || {};
+  const accessToken = localStorage.getItem('access_token')
+  const profile = JSON.parse(localStorage.getItem('profile')) || {}
   const usernames = [{
     name : 'user1',
-    value : 'trongdn2405+15860',
-    _id : '676b8ec893e2cbf319daf5a3'
+    value : 'trongdn24052566',
+    _id : '675ab047acf7179673a7496d'
   },
   {
     name : 'user2',
-    value : 'trongdn2405+29157',
-    _id : '676b8eeb93e2cbf319daf5a7'
+    value : 'trongtk240520038544',
+    _id : '6767de0fcfaa49fdfe78ce38'
   }
 ];
   const [value, setValue] = useState('');
   const [conversations, setConversations] = useState([]); // dùng để render message
-  console.log("🚀 ~ Chat ~ conversations:", conversations)
   const [receiver , setReceiver] = useState(profile._id);
   const [pagination , setPagination] = useState({
     page : PAGE,
     total_page : 0
   });
+  const relevantMessages = conversations.filter(
+    (message) =>
+      (message.sender_id === profile._id && message.receiver_id === receiver) ||
+      (message.sender_id === receiver && message.receiver_id === profile._id)
+  );
+  
 
 
   const handleSubmit = e => {
@@ -51,58 +57,79 @@ export default function Chat() {
     setValue('')
   }
 
-  const getProfile = (username)=>{
-    axios.get(`/users/${username}`,{
-      baseURL: import.meta.env.VITE_API_URL,
-    }).then((response)=> {
-      console.log("🚀 ~ getProfile ~ response:", response.data._id)
-      setReceiver(response.data?._id ?? '')
-    })
-  }
-
-  useEffect(
-    () => {
-      socket.auth = {
-        _id: profile._id,
-      };
-      socket.connect();
-      socket.on('receive_message', data => {
-      console.log("🚀 ~ Chat ~ data:", data)
-        const {payload} = data 
-        setConversations(conversations => [payload, ...conversations])
+  const getProfile = (username) => {
+    axios
+      .get(`/users/${username}`, {
+        baseURL: import.meta.env.VITE_API_URL,
+      })
+      .then((response) => {
+        const userId = response.data?._id ?? '';
+        setReceiver(userId);
+        setConversations([]); 
       });
+  };
+  
+
+    useEffect(() => {
+    if (!accessToken) {
+      console.error('Access token is missing');
+      return; 
+    } else {
+      console.log('Connecting to socket server');
+      
+      // send token
+      socket.auth = {
+        Authorization: `Bearer ${accessToken}`,
+      };
+      // middlewerae truocws connection
+      socket.connect();
+    
+      socket.on('receive_message', (data) => {
+        const { payload } = data;
+        if (
+          (payload.sender_id === profile._id && payload.receiver_id === receiver) ||
+          (payload.sender_id === receiver && payload.receiver_id === profile._id)
+        ) {
+          setConversations((conversations) => [payload, ...conversations]);
+        }
+      });
+      
+    
+      socket.on('connect_error', (message) => {
+        console.error(message.data);
+      });
+    
       return () => {
         socket.disconnect();
       };
-    },
-    [profile._id],
-  );
-
-  useEffect(()=>{
-    if(receiver){ // receiver là id 
-      // if(!receiver) return
-    axios.get(`/conversations/receiver/${receiver}`,{
-      baseURL: import.meta.env.VITE_API_URL,
-      headers : {
-        Authorization : 'Bearer ' + localStorage.getItem('access_token')
-      },
-      params:{
-        limit : LIMIT , 
-        page : PAGE
-      }
-    }).then(response=>{
-      console.log(response.data);
-      
-      const {data : conversations , page , total} = response.data
-      console.log("🚀 ~ useEffect ~ conversations:", conversations , page ,total)
-      
-      setConversations(conversations)
-      setPagination({
-        page , total_page: total
-      })
-    })
     }
-  },[receiver , profile._id])
+    
+  }, [accessToken , profile._id , receiver])  
+
+  useEffect(() => {
+    if (receiver) {
+      axios
+        .get(`/conversations/receiver/${receiver}`, {
+          baseURL: import.meta.env.VITE_API_URL,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          },
+          params: {
+            limit: LIMIT,
+            page: PAGE,
+          },
+        })
+        .then((response) => {
+          const { data: conversations, page, total } = response.data;
+          setConversations(conversations);
+          setPagination({
+            page,
+            total_page: total,
+          });
+        });
+    }
+  }, [receiver]);
+  
 
   const fetchMoreConversations = () => {
     if(receiver && pagination.page < pagination.total_page) {
@@ -168,26 +195,25 @@ export default function Chat() {
           loader={<h4>Loading...</h4>}
           scrollableTarget="scrollableDiv"
         >
-          {conversations.map((message, index) => (
-            <div
-              key={index}
-              className={`flex mb-4 ${
-                message.sender_id === profile._id
-                  ? "justify-end"
-                  : "justify-start"
-              }`}
-            >
-              <div
-                className={`rounded-lg px-4 py-2 max-w-[80%] ${
-                  message.sender_id === profile._id
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 text-gray-900"
-                }`}
-              >
-                <p className="text-sm">{message.content}</p>
-              </div>
-            </div>
-          ))}
+          {relevantMessages.map((message, index) => (
+  <div
+    key={index}
+    className={`flex mb-4 ${
+      message.sender_id === profile._id ? "justify-end" : "justify-start"
+    }`}
+  >
+    <div
+      className={`rounded-lg px-4 py-2 max-w-[80%] ${
+        message.sender_id === profile._id
+          ? "bg-blue-500 text-white"
+          : "bg-gray-100 text-gray-900"
+      }`}
+    >
+      <p className="text-sm">{message.content}</p>
+    </div>
+  </div>
+))}
+
         </InfiniteScroll>
       </div>
       <form
@@ -197,14 +223,12 @@ export default function Chat() {
         <input
           type="text"
           value={value}
-          disabled={receiver === profile._id}
           onChange={(e) => setValue(e.target.value)}
           className={` ${receiver === profile._id ? 'bg-gray-700' : ''} border border-gray-300 rounded-lg py-2 px-4 flex-grow mr-4 focus:outline-none focus:ring-2 focus:ring-blue-500`}
           placeholder="Type a message..."
         />
         <button
           type="submit"
-          disabled={receiver === profile._id}
           className={`${receiver === profile._id ? 'bg-gray-700' : ''} bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded`}
         >
           Send

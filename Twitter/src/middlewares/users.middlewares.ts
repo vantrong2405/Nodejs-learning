@@ -8,6 +8,7 @@ import { UserVerifyStatus } from '~/constants/enum';
 import HTTP_STATUS from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
 import { REGEX_USERNAME } from '~/constants/regex';
+import { verifyAccessToken } from '~/middlewares/common.middleware';
 import { ErrorWithStatus } from '~/models/Errors';
 import { TokenPayload } from '~/models/requests/User.requests';
 import databaseService from '~/services/database.services';
@@ -56,24 +57,7 @@ export const accessTokenValidator = validate(
         custom: {
           options: async (value: string, { req }) => {
             const access_token = value.split(' ')[1]
-            if (!access_token) {
-              throw new ErrorWithStatus({
-                message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
-                status: HTTP_STATUS.UNAUTHORIZED
-              })
-            }
-            try {
-              const decoded_authorization = await verifyToken({ token: access_token, secretOnPublicKey: process.env.JWT_ACCESS_TOKEN_SECRET })
-              req.decoded_authorization = decoded_authorization // send token id
-            } catch (error) {
-              if (error instanceof JsonWebTokenError) {
-                throw new ErrorWithStatus({
-                  message: USERS_MESSAGES.ACCESS_TOKEN_IS_IN_INVAILD,
-                  status: HTTP_STATUS.UNAUTHORIZED
-                })
-              } throw error
-            }
-            return true
+            return verifyAccessToken(access_token, req as Request)
           }
         }
       }
