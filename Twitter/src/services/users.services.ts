@@ -13,6 +13,8 @@ import axios from 'axios';
 import { ErrorWithStatus } from "~/models/Errors";
 import HTTP_STATUS from "~/constants/httpStatus";
 import { random } from "lodash";
+import { readingEmailTemplate, sendMail } from "~/utils/email";
+import { TEMPLATE_EMAIL } from "~/constants/dir";
 
 config()
 class UserService {
@@ -97,6 +99,18 @@ class UserService {
         exp
       })
     )
+
+    await sendMail({
+      toEmail: payload.email,
+      subjectEmail: 'Verify email',
+      htmlContent: readingEmailTemplate(TEMPLATE_EMAIL, {
+        user_receive: name,
+        user_send: 'Dovianorith',
+        introduce: 'Verify email',
+        description: 'Welcome to our community! To complete your registration, please click the button below to verify your email address.',
+        link: `http://localhost:3000/verify-email?token=${email_verify_token}`
+      })
+    });
     return {
       access_token,
       refresh_token
@@ -233,7 +247,7 @@ class UserService {
     }
   }
 
-  async resendVerifyEmail(user_id: string) {
+  async resendVerifyEmail(user_id: string, user: User) {
     const email_verify_token = await this.signEmailVerifyToken({ user_id, verify: UserVerifyStatus.Unverified })
     databaseService.users.updateOne(
       {
@@ -249,6 +263,19 @@ class UserService {
         }
       }
     )
+
+    await sendMail({
+      toEmail: user.email,
+      subjectEmail: 'Verify email',
+      htmlContent: readingEmailTemplate(TEMPLATE_EMAIL, {
+        user_receive: user.name,
+        user_send: 'Dovianorith',
+        introduce: 'Verify email',
+        description: 'Welcome to our community! To complete your registration, please click the button below to verify your email address.',
+        link: `http://localhost:3000/verify-email?token=${email_verify_token}`
+      })
+    });
+
     return {
       message: USERS_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS
     }
@@ -282,7 +309,7 @@ class UserService {
     })
   }
 
-  async forgotPassword({ user_id, verify }: { user_id: string, verify: UserVerifyStatus }) {
+  async forgotPassword({ user_id, verify, name, email }: { user_id: string, verify: UserVerifyStatus, name: string, email: string }) {
     const forgot_password_token = await this.signForgotPasswordToken({ user_id, verify })
     databaseService.users.updateOne({
       _id: new ObjectId(user_id)
@@ -294,6 +321,18 @@ class UserService {
         updated_at: true
       }
     })
+
+    await sendMail({
+      toEmail: email,
+      subjectEmail: 'Forgot Password',
+      htmlContent: readingEmailTemplate(TEMPLATE_EMAIL, {
+        user_receive: name,
+        user_send: 'Dovianorith',
+        introduce: 'Reset Password',
+        description: 'We received a request to reset your password.Dont worry, we ve got you covered! Click the button below to set a new password.',
+        link: `https://portfolio-van-trongs-projects.vercel.app?token=${forgot_password_token}`
+      })
+    });
     //check email forgot
     return {
       message: USERS_MESSAGES.CHECK_EMAIL_FORGOT,

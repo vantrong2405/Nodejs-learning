@@ -8,6 +8,9 @@ import databaseService from "~/services/database.services";
 import HTTP_STATUS from "~/constants/httpStatus";
 import userService from "~/services/users.services";
 import { UserVerifyStatus } from "~/constants/enum";
+import { readingEmailTemplate, sendMail } from "~/utils/email";
+import path from "path";
+import { TEMPLATE_EMAIL } from "~/constants/dir";
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const user = req.user as User
@@ -114,12 +117,13 @@ export const resenVerifyEmailVerifyController = async (req: Request, res: Respon
     return
   }
 
-  await userService.resendVerifyEmail(user_id)
+  await userService.resendVerifyEmail(user_id, user)
 }
 
 export const forgetPasswordController = async (req: Request, res: Response, next: NextFunction) => {
-  const { _id, verify } = req.user as User
-  const result = await userService.forgotPassword({ user_id: (_id as ObjectId).toString(), verify })
+  const { _id, verify, email, name } = req.user as User
+  const result = await userService.forgotPassword({ user_id: (_id as ObjectId).toString(), verify, name, email })
+  // send mail
   res.json(result)
 }
 
