@@ -104,7 +104,7 @@ class UserService {
       toEmail: payload.email,
       subjectEmail: 'Verify email',
       htmlContent: readingEmailTemplate(TEMPLATE_EMAIL, {
-        user_receive: name,
+        user_receive: payload.name,
         user_send: 'Dovianorith',
         introduce: 'Verify email',
         description: 'Welcome to our community! To complete your registration, please click the button below to verify your email address.',
@@ -249,14 +249,13 @@ class UserService {
 
   async resendVerifyEmail(user_id: string, user: User) {
     const email_verify_token = await this.signEmailVerifyToken({ user_id, verify: UserVerifyStatus.Unverified })
-    databaseService.users.updateOne(
+    await databaseService.users.updateOne(
       {
         _id: new ObjectId(user_id)
       },
       {
         $set: {
-          email_verify_token: '',
-          verify: UserVerifyStatus.Verified
+          email_verify_token
         },
         $currentDate: {
           updated_at: true
@@ -302,7 +301,7 @@ class UserService {
         token_type: TokenType.ForgotPasswordToken,
         verify
       },
-      privateKey: process.env.JWT_SECRET_FORGOT_TOKEN as string,
+      privateKey: process.env.JWT_SECRET_FORGOT_TOKEN as string, // đăng ký cái gì thì forgot cái đấy
       options: {
         expiresIn: process.env.EMAIL_FORGOT_TOKEN_EXPIRE_IN
       }

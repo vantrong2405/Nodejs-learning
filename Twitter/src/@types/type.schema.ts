@@ -6,6 +6,7 @@ import { ErrorWithStatus } from "~/models/Errors";
 import databaseService from "~/services/database.services";
 import { hashPassword } from "~/utils/crypto";
 
+
 export const passwordSchema: ParamSchema = {
   isString: {
     errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING

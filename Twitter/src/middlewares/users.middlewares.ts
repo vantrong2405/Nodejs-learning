@@ -12,11 +12,9 @@ import { verifyAccessToken } from '~/middlewares/common.middleware';
 import { ErrorWithStatus } from '~/models/Errors';
 import { TokenPayload } from '~/models/requests/User.requests';
 import databaseService from '~/services/database.services';
-import userService from '~/services/users.services';
 import { hashPassword } from '~/utils/crypto';
 import { verifyToken } from '~/utils/jwt';
 import { validate } from '~/utils/validation';
-
 export const loginValidator = validate(checkSchema({
   email: emailSchema,
   password: passwordSchema
@@ -141,7 +139,7 @@ export const verifyForgotPasswordTokenValidator = validate(checkSchema({
         try {
           const decoded_forgot_password_token = await verifyToken({
             token: value,
-            secretOnPublicKey: process.env.JWT_SECRET_FORGOT_TOKEN_TOKEN as string,
+            secretOnPublicKey: process.env.JWT_SECRET_FORGOT_TOKEN as string,
           })
 
           const { user_id } = decoded_forgot_password_token
@@ -186,7 +184,7 @@ export const resetPasswordValidor = validate(
           try {
             const decoded_forgot_password_token = await verifyToken({
               token: value,
-              secretOnPublicKey: process.env.JWT_SECRET_FORGOT_TOKEN_TOKEN as string,
+              secretOnPublicKey: process.env.JWT_SECRET_FORGOT_TOKEN as string,
             })
 
             const { user_id } = decoded_forgot_password_token
