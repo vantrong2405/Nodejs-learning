@@ -16,6 +16,8 @@ import conversationRouter from '~/routes/conversation.router';
 import initSocket from '~/utils/socket';
 import { envConfig, isProduction } from '~/utils/config';
 import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit'
+import { corsOptions, limiter, port } from '~/utils/utils';
 // import '~/utils/faker'
 
 initFolder([UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR])
@@ -31,14 +33,11 @@ databaseService.connect()
   })
 const app = express();
 const httpsServer = createServer(app);
-
-const port = envConfig.PORT
-const corsOptions: CorsOptions = {
-  origin: isProduction ? envConfig.CLIENT_URL : '*',
-}
 app.use(cors(corsOptions));
 app.use(helmet());
 app.use(express.json());// convert json -> data
+// Apply the rate limiting middleware to all requests.
+app.use(limiter)
 app.use('/users', userRouter)
 app.use('/medias', mediasRouter)
 app.use('/static', staticRoutes)
