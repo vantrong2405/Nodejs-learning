@@ -11,10 +11,11 @@ import bookmarkRouter from '~/routes/bookmarks.router';
 import likeRouter from '~/routes/likes.router';
 import searchRouter from '~/routes/searchs.router';
 import { createServer } from "http";
-import cors from 'cors'
+import cors, { CorsOptions } from 'cors'
 import conversationRouter from '~/routes/conversation.router';
 import initSocket from '~/utils/socket';
-import { envConfig } from '~/utils/config';
+import { envConfig, isProduction } from '~/utils/config';
+import helmet from 'helmet';
 // import '~/utils/faker'
 
 initFolder([UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR])
@@ -32,7 +33,11 @@ const app = express();
 const httpsServer = createServer(app);
 
 const port = envConfig.PORT
-app.use(cors());
+const corsOptions: CorsOptions = {
+  origin: isProduction ? envConfig.CLIENT_URL : '*',
+}
+app.use(cors(corsOptions));
+app.use(helmet());
 app.use(express.json());// convert json -> data
 app.use('/users', userRouter)
 app.use('/medias', mediasRouter)

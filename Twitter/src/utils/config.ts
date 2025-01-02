@@ -2,7 +2,7 @@ import argv from 'minimist'
 import { config } from 'dotenv'
 
 export const options = argv(process.argv.slice(2))
-export const isProduction = options.env === ' production'
+export const isProduction = options.env === 'production'
 
 config({
   path: options.env ? `.env.${options.env}` : '.env',
@@ -43,4 +43,5 @@ export const envConfig = {
   EMAIL_USER: process.env.EMAIL_USER || '',
   EMAIL_PASSWORD: process.env.EMAIL_PASSWORD || '',
   EMAIL_FROM: process.env.EMAIL_FROM || 'Dovianorith',
+  CLIENT_URL: process.env.CLIENT_URL
 };
