@@ -2,22 +2,14 @@ import { Request } from 'express'
 import path from 'path'
 import sharp from 'sharp'
 import fs from 'fs'
-import { config } from 'dotenv'
 import { getNameFromFullName, handleUploadImage, handleUploadVideo } from '~/utils/file'
-import { File } from 'formidable'
-import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
-import { isProduction, options } from '~/utils/config'
+import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
+import { envConfig, isProduction } from '~/utils/config'
 import { EncodingStatus, MediaType } from '~/constants/enum'
 import { Media } from '~/models/Other'
 import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
 import databaseService from '~/services/database.services'
 import { VideoStatus } from '~/models/schemas/VideoStatus.schema'
-
-config({
-  path: options.env ? `.env.${options.env}` : '.env'
-})
-
-
 class Queue {
   item: string[]
   encoding: boolean
@@ -116,7 +108,7 @@ class MediaService {
         fs.renameSync(file.filepath, newPath) // Nếu tệp là.jpg, chỉ cần chuyển tệp tạm về đích mà không cần xử lý lại
       }
       return {
-        url: isProduction ? `${process.env.HOST}/static/image/${newName}.jpg` : `http://localhost:${process.env.PORT}/static/image/${newName}.jpg`,
+        url: isProduction ? `${envConfig.HOST}/static/image/${newName}.jpg` : `http://localhost:${envConfig.PORT}/static/image/${newName}.jpg`,
         type: MediaType.Image
       }
     }))
@@ -129,8 +121,8 @@ class MediaService {
       const folder = getNameFromFullName(file.newFilename)
       return {
         url: isProduction
-          ? `${process.env.HOST}/static/video/${folder}/${file.newFilename}`
-          : `http://localhost:${process.env.PORT}/static/video/${folder}/${file.newFilename}`,
+          ? `${envConfig.HOST}/static/video/${folder}/${file.newFilename}`
+          : `http://localhost:${envConfig.PORT}/static/video/${folder}/${file.newFilename}`,
         type: MediaType.Video
       }
     })
@@ -145,8 +137,8 @@ class MediaService {
         const folder = getNameFromFullName(file.newFilename)
         return {
           url: isProduction
-            ? `${process.env.HOST}/static/video-hls/${folder}/${file.newFilename}`
-            : `http://localhost:${process.env.PORT}/static/video-hls/${folder}/${file.newFilename}`,
+            ? `${envConfig.HOST}/static/video-hls/${folder}/${file.newFilename}`
+            : `http://localhost:${envConfig.PORT}/static/video-hls/${folder}/${file.newFilename}`,
           type: MediaType.Video
         }
       })

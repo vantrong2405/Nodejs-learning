@@ -7,18 +7,13 @@
 //https://tabular.email/editor/FromdemotemplateMinimalnotification--5c11315c-7d34-453b-a6c2-bd042809ef99
 //https://studio.unlayer.com/create/warm-lead-email
 
-import { config } from 'dotenv';
 import { createTransport, SendMailOptions, SentMessageInfo } from 'nodemailer';
 import { readFileSync } from 'fs';
-import { options } from '~/utils/config';
 import { compile } from 'handlebars';
-
-config({
-  path: options.env ? `.env.${options.env}` : '.env'
-})
+import { envConfig } from '~/utils/config';
 
 
-const { EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD, EMAIL_FROM } = process.env
+const { EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD, EMAIL_FROM } = envConfig
 export const sendMail = async ({ toEmail, subjectEmail, htmlContent }: { toEmail: string, subjectEmail: string, htmlContent: string }): Promise<SentMessageInfo | void> => {
   try {
     const transporter = createTransport({
