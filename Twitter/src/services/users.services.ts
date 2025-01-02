@@ -15,8 +15,12 @@ import HTTP_STATUS from "~/constants/httpStatus";
 import { random } from "lodash";
 import { readingEmailTemplate, sendMail } from "~/utils/email";
 import { TEMPLATE_EMAIL } from "~/constants/dir";
+import { options } from "~/utils/config";
 
-config()
+config({
+  path: options.env ? `.env.${options.env}` : '.env'
+})
+
 class UserService {
   private signAccessToken({ user_id, verify }: { user_id: string, verify: UserVerifyStatus }) {
     return signToken({

@@ -10,7 +10,13 @@
 import { config } from 'dotenv';
 import { createTransport, SendMailOptions, SentMessageInfo } from 'nodemailer';
 import { readFileSync } from 'fs';
-config()
+import { options } from '~/utils/config';
+import { compile } from 'handlebars';
+
+config({
+  path: options.env ? `.env.${options.env}` : '.env'
+})
+
 
 const { EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD, EMAIL_FROM } = process.env
 export const sendMail = async ({ toEmail, subjectEmail, htmlContent }: { toEmail: string, subjectEmail: string, htmlContent: string }): Promise<SentMessageInfo | void> => {
@@ -43,7 +49,7 @@ export const sendMail = async ({ toEmail, subjectEmail, htmlContent }: { toEmail
 
 // Reading the template content
 
-import { compile } from 'handlebars';
+
 
 export const readingEmailTemplate = (templatePath: string, data: object) => {
   const emailTemplate = readFileSync(templatePath, 'utf-8') //  Đọc nội dung file template

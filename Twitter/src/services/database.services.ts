@@ -10,7 +10,11 @@ import Hashtag from '~/models/schemas/Hashtag.schema';
 import Bookmark from '~/models/schemas/Bookmark.schema';
 import Like from '~/models/schemas/Like.schema';
 import Conversation from '~/models/schemas/Conversation.schema';
-dotenv.config()
+import { options } from '~/utils/config';
+dotenv.config({
+  path: options.env ? `.env.${options.env}` : '.env'
+})
+
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@twitter.hmuyl.mongodb.net/?retryWrites=true&w=majority&appName=Twitter`;
 class DatabaseService {
   private client: MongoClient

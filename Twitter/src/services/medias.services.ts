@@ -6,14 +6,17 @@ import { config } from 'dotenv'
 import { getNameFromFullName, handleUploadImage, handleUploadVideo } from '~/utils/file'
 import { File } from 'formidable'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
-import { isProduction } from '~/utils/config'
+import { isProduction, options } from '~/utils/config'
 import { EncodingStatus, MediaType } from '~/constants/enum'
 import { Media } from '~/models/Other'
 import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
 import databaseService from '~/services/database.services'
 import { VideoStatus } from '~/models/schemas/VideoStatus.schema'
 
-config()
+config({
+  path: options.env ? `.env.${options.env}` : '.env'
+})
+
 
 class Queue {
   item: string[]
@@ -34,7 +37,7 @@ class Queue {
     )
     this.processEncode()
   }
-  
+
   async processEncode() {
     if (this.encoding) return
     if (this.item.length > 0) {

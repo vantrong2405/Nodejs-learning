@@ -15,10 +15,15 @@ import { createServer } from "http";
 import cors from 'cors'
 import conversationRouter from '~/routes/conversation.router';
 import initSocket from '~/utils/socket';
+import { isProduction, options } from '~/utils/config';
 // import '~/utils/faker'
 
-config()
+config({
+  path: options.env ? `.env.${options.env}` : '.env'
+})
+
 initFolder([UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR])
+
 databaseService.connect()
   .then(() => {
     databaseService.indexeUser()
