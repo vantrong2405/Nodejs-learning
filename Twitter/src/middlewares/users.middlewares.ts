@@ -12,6 +12,7 @@ import { verifyAccessToken } from '~/middlewares/common.middleware';
 import { ErrorWithStatus } from '~/models/Errors';
 import { TokenPayload } from '~/models/requests/User.requests';
 import databaseService from '~/services/database.services';
+import { envConfig } from '~/utils/config';
 import { hashPassword } from '~/utils/crypto';
 import { verifyToken } from '~/utils/jwt';
 import { validate } from '~/utils/validation';
@@ -74,7 +75,7 @@ export const refreshTokenValidator = validate(
         options: async (value, { req }) => {
           try {
             const [decoded_refresh_token, refresh_token] = await Promise.all([
-              verifyToken({ token: value, secretOnPublicKey: process.env.JWT_REFRESH_TOKEN_SECRET }),
+              verifyToken({ token: value, secretOnPublicKey: envConfig.JWT_REFRESH_TOKEN_SECRET }),
               databaseService.refreshTokens.findOne({ token: value })
             ])
             if (refresh_token === null) {
@@ -100,7 +101,7 @@ export const emailVerifyTokenValidator = validate(
       },
       custom: {
         options: async (value, { req }) => {
-          const decoded_email_verify_token = await verifyToken({ token: value, secretOnPublicKey: process.env.JWT_EMAIL_VERIFY_TOKEN_SECRET })
+          const decoded_email_verify_token = await verifyToken({ token: value, secretOnPublicKey: envConfig.JWT_EMAIL_VERIFY_TOKEN_SECRET })
           req.decoded_email_verify_token = decoded_email_verify_token
         }
       }
@@ -139,7 +140,7 @@ export const verifyForgotPasswordTokenValidator = validate(checkSchema({
         try {
           const decoded_forgot_password_token = await verifyToken({
             token: value,
-            secretOnPublicKey: process.env.JWT_SECRET_FORGOT_TOKEN as string,
+            secretOnPublicKey: envConfig.JWT_SECRET_FORGOT_TOKEN as string,
           })
 
           const { user_id } = decoded_forgot_password_token
@@ -184,7 +185,7 @@ export const resetPasswordValidor = validate(
           try {
             const decoded_forgot_password_token = await verifyToken({
               token: value,
-              secretOnPublicKey: process.env.JWT_SECRET_FORGOT_TOKEN as string,
+              secretOnPublicKey: envConfig.JWT_SECRET_FORGOT_TOKEN as string,
             })
 
             const { user_id } = decoded_forgot_password_token

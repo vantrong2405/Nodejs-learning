@@ -51,6 +51,7 @@ app.use('/conversations', conversationRouter)
 initSocket(httpsServer)
 app.use(defaultErrorHandler)
 httpsServer.listen(port, () => {
+  console.log(process.env.PORT, '>>>')
   console.log(`Server is running at http://localhost:${port}`);
 });
 

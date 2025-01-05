@@ -4,6 +4,7 @@ import { pick } from "lodash";
 import HTTP_STATUS from "~/constants/httpStatus";
 import { USERS_MESSAGES } from "~/constants/message";
 import { ErrorWithStatus } from "~/models/Errors";
+import { envConfig } from "~/utils/config";
 import { verifyToken } from "~/utils/jwt";
 type filterKeys<T> = Array<keyof T>
 
@@ -22,7 +23,7 @@ export const verifyAccessToken = async (access_token: string, req?: Request) => 
   try {
     const decoded_authorization = await verifyToken({
       token: access_token,
-      secretOnPublicKey: process.env.JWT_ACCESS_TOKEN_SECRET
+      secretOnPublicKey: envConfig.JWT_ACCESS_TOKEN_SECRET
     })
     if (req) {
       req.decoded_authorization = decoded_authorization

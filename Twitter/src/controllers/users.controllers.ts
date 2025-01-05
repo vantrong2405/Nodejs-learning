@@ -94,6 +94,7 @@ export const deleteDBController = async (req: Request, res: Response) => {
     res.json({
       message: USERS_MESSAGES.DELETE_DB_SUCCESS
     });
+
   } catch (error) {
     console.error('Error deleting database:', error)
     res.status(500).json({ message: 'Internal Server Error' });
