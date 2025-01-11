@@ -9,7 +9,7 @@ import tweetServices from "~/services/tweets.services"
 export const createTweetController = async (req: Request, res: Response, next: NextFunction) => {
   const { user_id } = req.decoded_authorization
   const result = await tweetServices.createTweet(req.body, user_id)
-  res.json({
+  return res.json({
     message: TWEET_MESSAGES.CREATE_TWEET_SUCCESS,
     result
   })
@@ -23,7 +23,7 @@ export const getTweetController = async (req: Request, res: Response, next: Next
     views: result.guest_views + result.user_views,
     updated_at: result.updated_at
   }
-  res.json({
+  return res.json({
     message: TWEET_MESSAGES.GET_TWEET_SUCCESS,
     result: tweet
   })
@@ -41,7 +41,7 @@ export const getTweetChildrenController = async (req: Request<TweetParam, any, a
     page,
     user_id
   })
-  res.json({
+  return res.json({
     message: TWEET_MESSAGES.GET_TWEET_CHILDREN_SUCCESS,
     result: {
       tweets,
@@ -62,7 +62,7 @@ export const getNewfeedsController = async (req: Request<ParamsDictionary, any, 
     limit,
     page
   })
-  res.json({
+  return res.json({
     message: TWEET_MESSAGES.GET_NEWFEEDS_SUCCESS,
     result: {
       tweets: result.tweets,

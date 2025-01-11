@@ -15,7 +15,7 @@ export const searchController = async (req: Request<ParamsDictionary, any, any, 
     media_type: req.query.media_type,
     people_follow: req.query.people_follow
   })
-  res.json({
+  return res.json({
     message: SEARCH_MESSAGES.SUCCESS,
     result: {
       tweets: result.tweets,

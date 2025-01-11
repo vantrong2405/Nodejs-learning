@@ -9,7 +9,7 @@ import mime from 'mime'
 
 export const uploadImageController = async (req: Request, res: Response, next: NextFunction) => {
   const url = await mediaService.uploadImage(req);
-  res.json({
+  return res.json({
     message: USERS_MESSAGES.UPLOAD_IMAGE_SUCCESS,
     result: url
   })
@@ -17,7 +17,7 @@ export const uploadImageController = async (req: Request, res: Response, next: N
 
 export const uploadVideoController = async (req: Request, res: Response, next: NextFunction) => {
   const url = await mediaService.uploadVideo(req);
-  res.json({
+  return res.json({
     message: USERS_MESSAGES.UPLOAD_VIDEO_SUCCESS,
     result: url
   })
@@ -25,7 +25,7 @@ export const uploadVideoController = async (req: Request, res: Response, next: N
 
 export const uploadVideoHLSController = async (req: Request, res: Response, next: NextFunction) => {
   const url = await mediaService.uploadVideoHLS(req);
-  res.json({
+  return res.json({
     message: USERS_MESSAGES.UPLOAD_VIDEO_SUCCESS,
     result: url
   })
@@ -89,7 +89,7 @@ export const serveVideoStreamController = (req: Request, res: Response, next: Ne
 export const videoStatusMediaController = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params
   const result = await mediaService.getVideoStatus(id as string)
-  res.json({
+  return res.json({
     status:
       result?.status == 0 ? 'Pending' : result?.status == 1 ? 'Processing' : result?.status == 2 ? 'Success' : 'Failed',
     result: result !== null ? result : "Don't have this video"

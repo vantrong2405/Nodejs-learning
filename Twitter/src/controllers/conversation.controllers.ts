@@ -10,5 +10,5 @@ export const getConversationController = async (req: Request<GetConversationPara
   console.log('sender_id', sender_id)
   console.log('receiver_id', receiver_id)
   const result = await conversationService.getConversation({ sender_id, receiver_id, limit, page })
-  res.json(result)
+  return res.json(result)
 }
