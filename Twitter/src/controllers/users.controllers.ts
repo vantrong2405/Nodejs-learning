@@ -182,6 +182,12 @@ export const changePasswordController = async (req: Request, res: Response, next
   return res.json(result)
 }
 
+export const getFriendController = async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization
+  const result = await userService.getFriends(user_id)
+  return res.json(result)
+}
+
 export const getUser = async (req: Request<ParamsDictionary>, res: Response, next: NextFunction) => {
   const { username } = req.params
   const result = await userService.getUser(username)
