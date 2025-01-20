@@ -35,7 +35,7 @@ export const serveImageController = (req: Request, res: Response, next: NextFunc
   const { name } = req.params
   return res.sendFile(path.resolve(UPLOAD_IMAGE_DIR, name), (err) => {
     if (err) {
-      res.status((err as any).status).json({
+      return res.status((err as any).status).json({
         message: USERS_MESSAGES.VIDEO_NOT_FOUND
       })
     }
@@ -46,7 +46,7 @@ export const serveVideoController = (req: Request, res: Response, next: NextFunc
   return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, name), (err) => {
     if (err) {
       if (!res.headersSent) {
-        res.status((err as any).status).json({
+        return res.status((err as any).status).json({
           message: USERS_MESSAGES.VIDEO_NOT_FOUND
         });
       }
@@ -99,7 +99,7 @@ export const serveM3U8Controller = (req: Request, res: Response, next: NextFunct
   const { id } = req.params
   return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR + '/', id, 'master.m3u8'), (err) => {
     if (err) {
-      res.status(HTTP_STATUS.NOTFOUND).send('Not Found !!!')
+      return res.status(HTTP_STATUS.NOTFOUND).send('Not Found !!!')
     }
   })
 }
@@ -107,7 +107,7 @@ export const serveSegmentController = (req: Request, res: Response, next: NextFu
   const { id, v, segment } = req.params
   return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR + '/', id, v, segment), (err) => {
     if (err) {
-      res.status(HTTP_STATUS.NOTFOUND).send('Not Found !!!')
+      return res.status(HTTP_STATUS.NOTFOUND).send('Not Found !!!')
     }
   })
 }
